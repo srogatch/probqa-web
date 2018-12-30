@@ -5,7 +5,7 @@ from pathlib import Path
 class Target(models.Model):
     id = models.BigAutoField(primary_key=True)
     pqa_id = models.BigIntegerField(
-        'Permanent target identifier inside the engine',
+        'Permanent ID in engine',
         unique=True, null=True, blank=True)
     title = models.CharField(max_length=255)
     link = models.TextField(max_length=65535)
@@ -25,7 +25,7 @@ class Target(models.Model):
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
     pqa_id = models.BigIntegerField(
-        'Permanent question identifier inside the engine',
+        'Permanent ID in engine',
         unique=True, null=True, blank=True)
     message = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
