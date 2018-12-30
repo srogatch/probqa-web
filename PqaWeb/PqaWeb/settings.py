@@ -26,7 +26,7 @@ SECRET_KEY = Path(os.path.join(BASE_DIR, '../../secret/django_key.txt')).read_te
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 
 
 # Application definition
@@ -122,3 +122,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Media files (e.g. uploads)
+MEDIA_ROOT = os.path.realpath(os.path.join(BASE_DIR, '../../Data/MediaRoot'))
+
+MEDIA_URL = '/media/'
