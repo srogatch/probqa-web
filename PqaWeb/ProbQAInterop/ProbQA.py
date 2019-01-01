@@ -94,21 +94,28 @@ class CiRatedTarget(ctypes.Structure):
         ('prob', ctypes.c_double),
     ]
 
-# PQACORE_API uint8_t CiLogger_Init(void **ppStrErr, const char* baseName);
-pqa_core.CiLogger_Init.restype = ctypes.c_uint8
-pqa_core.CiLogger_Init.argtypes = (ctypes.POINTER(ctypes.c_char_p), ctypes.c_char_p)
+# PQACORE_API uint8_t Logger_Init(void **ppStrErr, const char* baseName);
+pqa_core.Logger_Init.restype = ctypes.c_uint8
+pqa_core.Logger_Init.argtypes = (ctypes.POINTER(ctypes.c_char_p), ctypes.c_char_p)
 
 # PQACORE_API void CiReleaseString(void *pvString);
 pqa_core.CiReleaseString.restype = None
 pqa_core.CiReleaseString.argtypes = (ctypes.c_char_p,)
 
-# PQACORE_API void* CiPqaGetEngineFactory();
-# PQACORE_API void* CiPqaEngineFactory_CreateCpuEngine(void* pvFactory, void **ppError, CiEngineDefinition *pEngDef);
-# PQACORE_API void* CiqaEngineFactory_LoadCpuEngine(void *pvFactory, void **ppError, const char* filePath,
+# PQACORE_API void* CiGetPqaEngineFactory();
+pqa_core.CiGetPqaEngineFactory.restype = ctypes.c_void_p
+pqa_core.CiGetPqaEngineFactory.argtypes = None
+
+# PQACORE_API void* PqaEngineFactory_CreateCpuEngine(void* pvFactory, void **ppError, CiEngineDefinition *pEngDef);
+pqa_core.PqaEngineFactory_CreateCpuEngine.restype = ctypes.c_void_p
+pqa_core.PqaEngineFactory_CreateCpuEngine.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p),
+    ctypes.POINTER(CiEngineDefinition))
+
+# PQACORE_API void* PqaEngineFactory_LoadCpuEngine(void *pvFactory, void **ppError, const char* filePath,
 #   uint64_t memPoolMaxBytes);
 
 # PQACORE_API void CiReleasePqaError(void *pvErr);
-# PQACORE_API void* CiPqaError_ToString(void *pvError, const uint8_t withParams);
+# PQACORE_API void* PqaError_ToString(void *pvError, const uint8_t withParams);
 
 # PQACORE_API void CiReleasePqaEngine(void *pvEngine);
 # PQACORE_API void* PqaEngine_Train(void *pvEngine, int64_t nQuestions, const CiAnsweredQuestion* const pAQs,
@@ -145,10 +152,14 @@ class Utils:
 class SRLogger:
     def init(base_name : str) -> bool:
         str_err = ctypes.c_char_p()
-        ans = (pqa_core.CiLogger_Init(ctypes.byref(str_err), ctypes.c_char_p(base_name.encode('ascii'))) != 0)
+        ans = (pqa_core.Logger_Init(ctypes.byref(str_err), ctypes.c_char_p(base_name.encode('ascii'))) != 0)
         if str_err:
             raise PqaException(Utils.handle_native_string(str_err))
 
+class PqaEngineFactory:
+    c_factory = pqa_core.CiGetPqaEngineFactory()
+
+            
 class PqaEngine:
     # Permanent-compact ID mappings follow
     def question_perm_from_comp(ids : list) -> bool:
