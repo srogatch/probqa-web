@@ -11,5 +11,11 @@ class Pqawv1Config(AppConfig):
         print('Startup of subsystems...')
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
+        # Test creation of the engine
+        """probqa.PqaEngineFactory.instance.create_cpu_engine(probqa.EngineDefinition(
+            n_answers = 5, # Use 0 or 1 to trigger an error
+            n_questions = 10,
+            n_targets = 10,
+        ))"""
         # Load ProbQA engine
         print('All subsystems operational!')

@@ -1,5 +1,8 @@
+from __future__ import annotations
 import os
 import ctypes
+from enum import Enum
+import threading
 
 # Initialization and C wrapper follow: please, don't use them in Python code.
 # Instead, please use OOP wrapper that follows later.
@@ -54,7 +57,7 @@ LOAD_LIBRARY_SEARCH_SYSTEM32        = 0x00000800
 LOAD_LIBRARY_SEARCH_DEFAULT_DIRS    = 0x00001000
 
 #TODO: on Linux that would be a .so, but the engine doesn't yet support Linux
-pqa_engine_path = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "DLLs/PqaCore.dll"))
+pqa_engine_path = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'DLLs/PqaCore.dll'))
 print('Initializing engine from:', pqa_engine_path)
 pqa_core = CDLLEx(pqa_engine_path, LOAD_WITH_ALTERED_SEARCH_PATH)
 
@@ -69,7 +72,7 @@ class CiEngineDefinition(ctypes.Structure):
         ('precExponent', ctypes.c_uint16),
         ('precMantissa', ctypes.c_uint32),
         ('initAmount', ctypes.c_double),
-        ('_memPoolMaxBytes', ctypes.c_uint64),
+        ('memPoolMaxBytes', ctypes.c_uint64),
     ]
 
 class CiAnsweredQuestion(ctypes.Structure):
@@ -106,7 +109,8 @@ pqa_core.CiReleaseString.argtypes = (ctypes.c_char_p,)
 pqa_core.CiGetPqaEngineFactory.restype = ctypes.c_void_p
 pqa_core.CiGetPqaEngineFactory.argtypes = None
 
-# PQACORE_API void* PqaEngineFactory_CreateCpuEngine(void* pvFactory, void **ppError, CiEngineDefinition *pEngDef);
+# PQACORE_API void* PqaEngineFactory_CreateCpuEngine(void* pvFactory, void **ppError,
+#     const CiEngineDefinition *pEngDef);
 pqa_core.PqaEngineFactory_CreateCpuEngine.restype = ctypes.c_void_p
 pqa_core.PqaEngineFactory_CreateCpuEngine.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p),
     ctypes.POINTER(CiEngineDefinition))
@@ -115,9 +119,18 @@ pqa_core.PqaEngineFactory_CreateCpuEngine.argtypes = (ctypes.c_void_p, ctypes.PO
 #   uint64_t memPoolMaxBytes);
 
 # PQACORE_API void CiReleasePqaError(void *pvErr);
+pqa_core.CiReleasePqaError.restype = None
+pqa_core.CiReleasePqaError.argtypes = (ctypes.c_void_p,)
+
 # PQACORE_API void* PqaError_ToString(void *pvError, const uint8_t withParams);
+# restype has to be c_void_p to workaround this problem: https://stackoverflow.com/questions/53999442/inconsistent-c-char-p-behavior-between-returning-vs-pointer-assignment
+pqa_core.PqaError_ToString.restype = ctypes.c_void_p
+pqa_core.PqaError_ToString.argtypes = (ctypes.c_void_p, ctypes.c_bool)
 
 # PQACORE_API void CiReleasePqaEngine(void *pvEngine);
+pqa_core.CiReleasePqaEngine.restype = None
+pqa_core.CiReleasePqaEngine.argtypes = (ctypes.c_void_p,)
+
 # PQACORE_API void* PqaEngine_Train(void *pvEngine, int64_t nQuestions, const CiAnsweredQuestion* const pAQs,
 #   const int64_t iTarget, const double amount = 1.0);
 # PQACORE_API uint8_t PqaEngine_QuestionPermFromComp(void *pvEngine, const int64_t count, int64_t *pIds);
@@ -155,13 +168,87 @@ class SRLogger:
         ans = (pqa_core.Logger_Init(ctypes.byref(str_err), ctypes.c_char_p(base_name.encode('ascii'))) != 0)
         if str_err:
             raise PqaException(Utils.handle_native_string(str_err))
+        return ans
 
-class PqaEngineFactory:
-    c_factory = pqa_core.CiGetPqaEngineFactory()
+class PrecisionType(Enum):
+    NONE = 0
+    FLOAT = 1
+    FLOAT_PAIR = 2
+    DOUBLE = 3
+    DOUBLE_PAIR = 4
+    ARBITRARY = 5
 
-            
+class EngineDefinition:
+    def __init__(self, n_answers : int, n_questions : int, n_targets : int, init_amount = 1.0,
+                 prec_type = PrecisionType.DOUBLE, prec_exponent = 11, prec_mantissa = 53,
+                 mem_pool_max_bytes = 512 * 1024 * 1024):
+        self.n_answers = n_answers
+        self.n_questions = n_questions
+        self.n_targets = n_targets
+        self.init_amount = init_amount
+        self.prec_type = prec_type
+        self.prec_exponent = prec_exponent
+        self.prec_mantissa = prec_mantissa
+        self.mem_pool_max_bytes = mem_pool_max_bytes
+
+class PqaError:
+    def factor(c_err : ctypes.c_void_p) -> PqaError:
+        if (c_err is None) or (c_err == 0):
+            return None
+        return PqaError(c_err)
+    
+    def __init__(self, c_err : ctypes.c_void_p):
+        self.c_err = c_err
+    
+    def __del__(self):
+        pqa_core.CiReleasePqaError(self.c_err)
+        
+    def __str__(self):
+        return self.to_string(True)
+        
+    def to_string(self, with_params : bool) -> str:
+        if (self.c_err is None) or (self.c_err == 0):
+            return 'Success'
+        void_ptr = pqa_core.PqaError_ToString(self.c_err, ctypes.c_bool(with_params))
+        return Utils.handle_native_string(ctypes.cast(void_ptr, ctypes.c_char_p))
+    
 class PqaEngine:
     # Permanent-compact ID mappings follow
     def question_perm_from_comp(ids : list) -> bool:
         # https://stackoverflow.com/questions/37197631/ctypes-reading-modified-array
         pass
+    
+    def __init__(self, c_engine : ctypes.c_void_p):
+        self.c_engine = c_engine
+    
+    def __del__(self):
+        pqa_core.CiReleasePqaEngine(c_engine)
+
+class PqaEngineFactory:
+    instance = None
+    
+    def __init__(self):
+        self.c_factory = pqa_core.CiGetPqaEngineFactory()
+    
+    def create_cpu_engine(self, eng_def : EngineDefinition) -> tuple:
+        c_err = ctypes.c_void_p()
+        c_eng_def = CiEngineDefinition()
+        c_eng_def.nAnswers = eng_def.n_answers
+        c_eng_def.nQuestions = eng_def.n_questions
+        c_eng_def.nTargets = eng_def.n_targets
+        c_eng_def.precType = eng_def.prec_type.value
+        c_eng_def.precExponent = eng_def.prec_exponent
+        c_eng_def.precMantissa = eng_def.prec_mantissa
+        c_eng_def.initAmount = eng_def.init_amount
+        c_eng_def.mem_pool_max_bytes = eng_def.mem_pool_max_bytes
+        try:
+            # If an exception is thrown from C++ code, then we can safely assume no engine is returned
+            c_engine = pqa_core.PqaEngineFactory_CreateCpuEngine(self.c_factory, ctypes.byref(c_err),
+                ctypes.byref(c_eng_def))
+        finally:
+            err = PqaError.factor(c_err)
+        if (c_engine is None) or (c_engine == 0):
+            raise PqaException('Couldn\'t create a CPU Engine due to a native error: ' + str(err))
+        return (PqaEngine(c_engine), err)
+
+PqaEngineFactory.instance = PqaEngineFactory()
