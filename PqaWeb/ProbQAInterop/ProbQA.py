@@ -186,7 +186,13 @@ pqa_core.PqaEngine_ResumeQuiz.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes
     ctypes.POINTER(CiAnsweredQuestion))
 
 # PQACORE_API int64_t PqaEngine_NextQuestion(void *pvEngine, void **ppError, const int64_t iQuiz);
+pqa_core.PqaEngine_NextQuestion.restype = ctypes.c_int64
+pqa_core.PqaEngine_NextQuestion.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_int64)
+
 # PQACORE_API void* PqaEngine_RecordAnswer(void *pvEngine, const int64_t iQuiz, const int64_t iAnswer);
+pqa_core.PqaEngine_RecordAnswer.restype = ctypes.c_void_p # The error
+pqa_core.PqaEngine_RecordAnswer.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.c_int64)
+
 # PQACORE_API int64_t PqaEngine_GetActiveQuestionId(void *pvEngine, void **ppError, const int64_t iQuiz);
 # PQACORE_API int64_t PqaEngine_ListTopTargets(void *pvEngine, void **ppError, const int64_t iQuiz,
 #   const int64_t maxCount, CiRatedTarget *pDest);
@@ -369,6 +375,34 @@ class PqaEngine:
 
     def resume_quiz(self, answered_questions: List[AnsweredQuestion]) -> int:
         c_aqs, n_questions = PqaEngine.to_c_answered_questions(answered_questions)
+        c_err = ctypes.c_void_p()
+        try:
+            i_quiz = pqa_core.PqaEngine_ResumeQuiz(self.c_engine, ctypes.byref(c_err), ctypes.c_int64(n_questions),
+                c_aqs)
+        finally:
+            err = PqaError.factor(c_err)
+        if err:
+            raise PqaException('Failed to resume a quiz: [%d, %s]' % (i_quiz, str(err)))
+        return i_quiz
+
+    def next_question(self, i_quiz: int) -> int:
+        c_err = ctypes.c_void_p()
+        try:
+            i_question = pqa_core.PqaEngine_NextQuestion(self.c_engine, ctypes.byref(c_err), ctypes.c_int64(i_quiz))
+        finally:
+            err = PqaError.factor(c_err)
+        if err:
+            raise PqaException('Failed to compute the next question: [%d, %s]' % (i_question, str(err)))
+        return i_question
+
+    def record_answer(self, i_quiz: int, i_answer: int, throw: bool = True) -> PqaError:
+        c_err = ctypes.c_void_p()
+        c_err.value = pqa_core.PqaEngine_RecordAnswer(self.c_engine, ctypes.c_int64(i_quiz), ctypes.c_int64(i_answer))
+        err = PqaError.factor(c_err)
+        if err:
+            if throw:
+                raise PqaException('Failed to record_answer(): ' + str(err))
+        return err
 
 class PqaEngineFactory:
     instance = None

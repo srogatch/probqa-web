@@ -11,7 +11,7 @@ class Pqawv1Config(AppConfig):
         print('Startup of subsystems for PID=%s...' % (os.getpid(),))
 
         # probqa.debug_break()
-        # input('Attach the debugger and press ENTER')
+        input('Attach the debugger and press ENTER')
 
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
@@ -39,7 +39,10 @@ class Pqawv1Config(AppConfig):
              probqa.AnsweredQuestion(4, 4),
              ], 0)
 
-        i_quiz = engine.start_quiz()
+        i_quiz1 = engine.start_quiz()
+        i_quiz2 = engine.resume_quiz([probqa.AnsweredQuestion(0, 1), probqa.AnsweredQuestion(1, 2)])
+        print('Quizzes:', i_quiz1, i_quiz2)
+        print('Next questions:', engine.next_question(i_quiz1), engine.next_question(i_quiz2))
 
         engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(os.path.join(
             settings.BASE_DIR, '../../Data/KBs/current.kb'))
