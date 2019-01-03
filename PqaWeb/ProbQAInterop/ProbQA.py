@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 import ctypes
 from enum import Enum
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 # Initialization and C wrapper follow: please, don't use them in Python code.
 # Instead, please use OOP wrapper that follows later.
@@ -103,6 +103,9 @@ class CiRatedTarget(ctypes.Structure):
         ('prob', ctypes.c_double),
     ]
 
+# PQACORE_API void CiDebugBreak(void);
+pqa_core.CiDebugBreak.restype = None
+pqa_core.CiDebugBreak.argtypes = None
 
 # PQACORE_API uint8_t Logger_Init(void **ppStrErr, const char* baseName);
 pqa_core.Logger_Init.restype = ctypes.c_uint8
@@ -153,13 +156,35 @@ pqa_core.PqaEngine_QuestionPermFromComp.restype = ctypes.c_bool
 pqa_core.PqaEngine_QuestionPermFromComp.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
 
 # PQACORE_API uint8_t PqaEngine_QuestionCompFromPerm(void *pvEngine, const int64_t count, int64_t *pIds);
+pqa_core.PqaEngine_QuestionCompFromPerm.restype = ctypes.c_bool
+pqa_core.PqaEngine_QuestionCompFromPerm.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
+
 # PQACORE_API uint8_t PqaEngine_TargetPermFromComp(void *pvEngine, const int64_t count, int64_t *pIds);
+pqa_core.PqaEngine_TargetPermFromComp.restype = ctypes.c_bool
+pqa_core.PqaEngine_TargetPermFromComp.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
+
 # PQACORE_API uint8_t PqaEngine_TargetCompFromPerm(void *pvEngine, const int64_t count, int64_t *pIds);
+pqa_core.PqaEngine_TargetCompFromPerm.restype = ctypes.c_bool
+pqa_core.PqaEngine_TargetCompFromPerm.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
+
 # PQACORE_API uint64_t PqaEngine_GetTotalQuestionsAsked(void *pvEngine, void **ppError);
+pqa_core.PqaEngine_GetTotalQuestionsAsked.restype = ctypes.c_uint64
+pqa_core.PqaEngine_GetTotalQuestionsAsked.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
+
 # PQACORE_API uint8_t PqaEngine_CopyDims(void *pvEngine, CiEngineDimensions *pDims);
+pqa_core.PqaEngine_CopyDims.restype = ctypes.c_bool
+pqa_core.PqaEngine_CopyDims.argtypes = (ctypes.c_void_p, ctypes.POINTER(CiEngineDimensions))
+
 # PQACORE_API int64_t PqaEngine_StartQuiz(void *pvEngine, void **ppError);
+pqa_core.PqaEngine_StartQuiz.restype = ctypes.c_int64
+pqa_core.PqaEngine_StartQuiz.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
+
 # PQACORE_API int64_t PqaEngine_ResumeQuiz(void *pvEngine, void **ppError, const int64_t nAnswered,
 #   const CiAnsweredQuestion* const pAQs);
+pqa_core.PqaEngine_ResumeQuiz.restype = ctypes.c_int64
+pqa_core.PqaEngine_ResumeQuiz.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_int64,
+    ctypes.POINTER(CiAnsweredQuestion))
+
 # PQACORE_API int64_t PqaEngine_NextQuestion(void *pvEngine, void **ppError, const int64_t iQuiz);
 # PQACORE_API void* PqaEngine_RecordAnswer(void *pvEngine, const int64_t iQuiz, const int64_t iAnswer);
 # PQACORE_API int64_t PqaEngine_GetActiveQuestionId(void *pvEngine, void **ppError, const int64_t iQuiz);
@@ -191,7 +216,7 @@ class SRLogger:
     @staticmethod
     def init(base_name : str) -> bool:
         str_err = ctypes.c_char_p()
-        ans = (pqa_core.Logger_Init(ctypes.byref(str_err), Utils.str_to_c_char_p(base_name)) != 0)
+        ans = pqa_core.Logger_Init(ctypes.byref(str_err), Utils.str_to_c_char_p(base_name))
         if str_err:
             raise PqaException(Utils.handle_native_string(str_err))
         return ans
@@ -227,6 +252,16 @@ class EngineDefinition:
         self.mem_pool_max_bytes = mem_pool_max_bytes
 
 
+class EngineDimensions:
+    def __init__(self, n_answers:int, n_questions:int, n_targets:int):
+        self.n_answers = n_answers
+        self.n_questions = n_questions
+        self.n_targets = n_targets
+
+    def __str__(self):
+        return '[n_answers=%d, n_questions=%d, n_targets=%d]' % (self.n_answers, self.n_questions, self.n_targets)
+
+
 class PqaError:
     @staticmethod
     def factor(c_err: ctypes.c_void_p) -> PqaError:
@@ -258,29 +293,82 @@ class PqaEngine:
     def __del__(self):
         pqa_core.CiReleasePqaEngine(self.c_engine)
 
-    # Permanent-compact ID mappings follow
-    def question_perm_from_comp(self, ids: List[int]) -> List[int]:
+    def __call_id_mapping(self,
+            c_func : Callable[[ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64)], ctypes.c_bool],
+            ids: List[int]) -> List[int]:
         # https://stackoverflow.com/questions/37197631/ctypes-reading-modified-array
         n_ids = len(ids)
         array_type = ctypes.c_int64 * n_ids
         c_ids = array_type(*ids)
-        b_ok = pqa_core.PqaEngine_QuestionPermFromComp(self.c_engine, ctypes.c_int64(n_ids), c_ids)
+        b_ok = c_func(self.c_engine, ctypes.c_int64(n_ids), c_ids)
         if not b_ok:
-            raise PqaException("Failed computing permanent from compact IDs.")
+            raise PqaException("Failed permanent<->compact ID conversion.")
         return list(c_ids)
 
-    def train(self, answered_questions: List[AnsweredQuestion], i_target : int,
-              amount : float = 1.0):
+    @staticmethod
+    def to_c_answered_questions(answered_questions: List[AnsweredQuestion]) -> Tuple[ctypes.Array, int]:
         n_questions = len(answered_questions)
-        c_aqs = CiAnsweredQuestion * n_questions
+        array_type = CiAnsweredQuestion * n_questions
+        c_aqs = array_type()
         for i in range(n_questions):
             c_aqs[i].iQuestion = answered_questions[i].i_question
             c_aqs[i].iAnswer = answered_questions[i].i_answer
-        return PqaError.factor(pqa_core.PqaEngine_Train(
-            self.c_engine, ctypes.c_int64(n_questions), ctypes.byref(c_aqs),
-            ctypes.c_int64(i_target), ctypes.c_double(amount)
-        ))
+        return c_aqs, n_questions
 
+    # Permanent<->compact ID mappings follow. They raise on error.
+    def question_perm_from_comp(self, ids: List[int]) -> List[int]:
+        return self.__call_id_mapping(pqa_core.PqaEngine_QuestionPermFromComp, ids)
+
+    def question_comp_from_perm(self, ids: List[int]) -> List[int]:
+        return self.__call_id_mapping(pqa_core.PqaEngine_QuestionCompFromPerm, ids)
+
+    def target_perm_from_comp(self, ids: List[int]) -> List[int]:
+        return self.__call_id_mapping(pqa_core.PqaEngine_TargetPermFromComp, ids)
+
+    def target_comp_from_perm(self, ids: List[int]) -> List[int]:
+        return self.__call_id_mapping(pqa_core.PqaEngine_TargetCompFromPerm, ids)
+
+    def train(self, answered_questions: List[AnsweredQuestion], i_target : int,
+              amount: float = 1.0, throw: bool = True) -> PqaError:
+        c_aqs, n_questions = PqaEngine.to_c_answered_questions(answered_questions)
+        c_err = ctypes.c_void_p()
+        c_err.value = pqa_core.PqaEngine_Train(
+            self.c_engine, ctypes.c_int64(n_questions), c_aqs,
+            ctypes.c_int64(i_target), ctypes.c_double(amount)
+        )
+        err = PqaError.factor(c_err)
+        if err:
+            if throw:
+                raise PqaException('Failed to train() the engine: ' + str(err))
+        return err
+
+    def get_total_questions_asked(self) -> int:
+        c_err = ctypes.c_void_p()
+        ans = pqa_core.PqaEngine_GetTotalQuestionsAsked(self.c_engine, ctypes.byref(c_err))
+        err = PqaError.factor(c_err)
+        if err:
+            raise PqaException('Failed to get the total number of questions asked: [%d, %s]' %
+                (ans, str(err)))
+        return ans
+
+    def copy_dims(self) -> EngineDimensions:
+        c_dims = CiEngineDimensions()
+        if not pqa_core.PqaEngine_CopyDims(self.c_engine, ctypes.byref(c_dims)):
+            raise PqaException('Failed to copy engine dimensions.')
+        return EngineDimensions(c_dims.nAnswers, c_dims.nQuestions, c_dims.nTargets)
+
+    def start_quiz(self) -> int:
+        c_err = ctypes.c_void_p()
+        try:
+            i_quiz = pqa_core.PqaEngine_StartQuiz(self.c_engine, ctypes.byref(c_err))
+        finally:
+            err = PqaError.factor(c_err)
+        if err:
+            raise PqaException('Failed to start a quiz: [%d, %s]' % (i_quiz, str(err)))
+        return i_quiz
+
+    def resume_quiz(self, answered_questions: List[AnsweredQuestion]) -> int:
+        c_aqs, n_questions = PqaEngine.to_c_answered_questions(answered_questions)
 
 class PqaEngineFactory:
     instance = None
@@ -324,3 +412,7 @@ class PqaEngineFactory:
         return (PqaEngine(c_engine), err)
 
 PqaEngineFactory.instance = PqaEngineFactory()
+
+
+def debug_break():
+    pqa_core.CiDebugBreak()

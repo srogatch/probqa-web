@@ -8,7 +8,11 @@ class Pqawv1Config(AppConfig):
     verbose_name = 'Probabilistic Question Asking - Web, Version 1'
     # https://stackoverflow.com/questions/6791911/execute-code-when-django-starts-once-only
     def ready(self):
-        print('Startup of subsystems...')
+        print('Startup of subsystems for PID=%s...' % (os.getpid(),))
+
+        # probqa.debug_break()
+        # input('Attach the debugger and press ENTER')
+
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
         # Test creation of the engine
@@ -27,6 +31,16 @@ class Pqawv1Config(AppConfig):
         perm_ids = engine.question_perm_from_comp(comp_ids)
         print('Permanent IDs:', perm_ids)
 
+        engine.train(
+            [probqa.AnsweredQuestion(0, 0),
+             probqa.AnsweredQuestion(1, 1),
+             probqa.AnsweredQuestion(2, 2),
+             probqa.AnsweredQuestion(3, 3),
+             probqa.AnsweredQuestion(4, 4),
+             ], 0)
+
+        i_quiz = engine.start_quiz()
+
         engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(os.path.join(
             settings.BASE_DIR, '../../Data/KBs/current.kb'))
         if err:
@@ -34,6 +48,11 @@ class Pqawv1Config(AppConfig):
         if not engine:
             print('Loaded no engine')
             return # Actually, stop the program if we can't create an engine
+
+        print('Total number of questions asked:', engine.get_total_questions_asked())
+
+        dims = engine.copy_dims()
+        print(dims)
 
         # Load ProbQA engine
         print('All subsystems operational!')

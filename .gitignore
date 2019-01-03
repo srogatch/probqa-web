@@ -1,2 +1,7 @@
 __pycache__
 /PqaWeb/db.sqlite3
+/PqaWeb/.idea/PqaWeb.iml
+/PqaWeb/.idea/encodings.xml
+/PqaWeb/.idea/misc.xml
+/PqaWeb/.idea/modules.xml
+/PqaWeb/.idea/workspace.xml
