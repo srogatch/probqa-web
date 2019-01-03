@@ -12,10 +12,28 @@ class Pqawv1Config(AppConfig):
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
         # Test creation of the engine
-        """probqa.PqaEngineFactory.instance.create_cpu_engine(probqa.EngineDefinition(
+        engine, err = probqa.PqaEngineFactory.instance.create_cpu_engine(probqa.EngineDefinition(
             n_answers = 5, # Use 0 or 1 to trigger an error
             n_questions = 10,
             n_targets = 10,
-        ))"""
+        ))
+        if err:
+            print(err.to_string(True))
+        if not engine:
+            print('Got no engine')
+            return # Actually, stop the program if we can't create an engine
+        comp_ids = list(range(2, 10, 2))
+        print('Compact IDs:', comp_ids)
+        perm_ids = engine.question_perm_from_comp(comp_ids)
+        print('Permanent IDs:', perm_ids)
+
+        engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(os.path.join(
+            settings.BASE_DIR, '../../Data/KBs/current.kb'))
+        if err:
+            print(err.to_string(True))
+        if not engine:
+            print('Loaded no engine')
+            return # Actually, stop the program if we can't create an engine
+
         # Load ProbQA engine
         print('All subsystems operational!')
