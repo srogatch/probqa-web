@@ -194,12 +194,28 @@ pqa_core.PqaEngine_RecordAnswer.restype = ctypes.c_void_p # The error
 pqa_core.PqaEngine_RecordAnswer.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.c_int64)
 
 # PQACORE_API int64_t PqaEngine_GetActiveQuestionId(void *pvEngine, void **ppError, const int64_t iQuiz);
+pqa_core.PqaEngine_GetActiveQuestionId.restype = ctypes.c_int64
+pqa_core.PqaEngine_GetActiveQuestionId.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_int64)
+
 # PQACORE_API int64_t PqaEngine_ListTopTargets(void *pvEngine, void **ppError, const int64_t iQuiz,
 #   const int64_t maxCount, CiRatedTarget *pDest);
+pqa_core.PqaEngine_ListTopTargets.restype = ctypes.c_int64
+pqa_core.PqaEngine_ListTopTargets.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p), ctypes.c_int64,
+    ctypes.c_int64, ctypes.POINTER(CiRatedTarget))
+
 # PQACORE_API void* PqaEngine_RecordQuizTarget(void *pvEngine, const int64_t iQuiz, const int64_t iTarget,
 #   const double amount = 1.0);
+pqa_core.PqaEngine_RecordQuizTarget.restype = ctypes.c_void_p
+pqa_core.PqaEngine_RecordQuizTarget.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.c_int64, ctypes.c_double)
+
 # PQACORE_API void* PqaEngine_ReleaseQuiz(void *pvEngine, const int64_t iQuiz);
+pqa_core.PqaEngine_ReleaseQuiz.restype = ctypes.c_void_p
+pqa_core.PqaEngine_ReleaseQuiz.argtypes = (ctypes.c_void_p, ctypes.c_int64)
+
 # PQACORE_API void* PqaEngine_SaveKB(void *pvEngine, const char* const filePath, const uint8_t bDoubleBuffer);
+pqa_core.PqaEngine_SaveKB.restype = ctypes.c_void_p
+pqa_core.PqaEngine_SaveKB.argtypes = (ctypes.c_void_p, ctypes.c_char_p, ctypes.c_bool)
+
 
 # OOP wrapper follows - please, use these in Python code
 class PqaException(Exception):
@@ -209,13 +225,13 @@ class PqaException(Exception):
 class Utils:
     @staticmethod
     def handle_native_string(c_str : ctypes.c_char_p) -> str:
-        ans = c_str.value.decode('ascii')
+        ans = c_str.value.decode('mbcs') # Windows-only
         pqa_core.CiReleaseString(c_str)
         return ans
 
     @staticmethod
     def str_to_c_char_p(s : str) -> ctypes.c_char_p:
-        return ctypes.c_char_p(s.encode('ascii'))
+        return ctypes.c_char_p(s.encode('mbcs')) # Windows-only
 
 
 class SRLogger:
@@ -242,6 +258,17 @@ class AnsweredQuestion:
         self.i_question = i_question
         self.i_answer = i_answer
 
+    def __repr__(self):
+        return '[i_question=%d, i_answer=%d]' % (self.i_question, self.i_answer)
+
+class RatedTarget:
+    def __init__(self, i_target: int, prob: float):
+        self.i_target = i_target
+        self.prob = prob
+
+    def __repr__(self):
+        return '[i_target=%d, P=%f%%]' % (self.i_target, self.prob * 100)
+
 
 class EngineDefinition:
     DEFAULT_MEM_POOL_MAX_BYTES = 512 * 1024 * 1024
@@ -264,7 +291,7 @@ class EngineDimensions:
         self.n_questions = n_questions
         self.n_targets = n_targets
 
-    def __str__(self):
+    def __repr__(self):
         return '[n_answers=%d, n_questions=%d, n_targets=%d]' % (self.n_answers, self.n_questions, self.n_targets)
 
 
@@ -281,7 +308,7 @@ class PqaError:
     def __del__(self):
         pqa_core.CiReleasePqaError(self.c_err)
         
-    def __str__(self):
+    def __repr__(self):
         return self.to_string(True)
         
     def to_string(self, with_params : bool) -> str:
@@ -403,6 +430,63 @@ class PqaEngine:
             if throw:
                 raise PqaException('Failed to record_answer(): ' + str(err))
         return err
+
+    def get_active_question_id(self, i_quiz: int) -> int:
+        c_err = ctypes.c_void_p()
+        try:
+            i_question = pqa_core.PqaEngine_GetActiveQuestionId(self.c_engine, ctypes.byref(c_err),
+                ctypes.c_int64(i_quiz))
+        finally:
+            err = PqaError.factor(c_err)
+        if err:
+            raise PqaException('Failed to get_active_question_id(): [%d, %s]' % (i_question, str(err)))
+        return i_question
+
+    def list_top_targets(self, i_quiz: int, max_count: int) -> List[RatedTarget]:
+        c_err = ctypes.c_void_p()
+        try:
+            array_type = CiRatedTarget * max_count
+            c_rated_targets = array_type()
+            n_top = pqa_core.PqaEngine_ListTopTargets(self.c_engine, ctypes.byref(c_err), ctypes.c_int64(i_quiz),
+                ctypes.c_int64(max_count), c_rated_targets)
+        finally:
+            err = PqaError.factor(c_err)
+        if err:
+            raise PqaException('Failed to list_top_targets(): [%d, %s]' % (n_top, str(err)))
+        ans = []
+        for i in range(n_top):
+            ans.append(RatedTarget(c_rated_targets[i].iTarget, c_rated_targets[i].prob))
+        return ans
+
+    def record_quiz_target(self, i_quiz: int, i_target: int, amount: float = 1.0, throw: bool = True) -> PqaError:
+        c_err = ctypes.c_void_p()
+        c_err.value = pqa_core.PqaEngine_RecordQuizTarget(self.c_engine, ctypes.c_int64(i_quiz),
+            ctypes.c_int64(i_target), ctypes.c_double(amount))
+        err = PqaError.factor(c_err)
+        if err:
+            if throw:
+                raise PqaException('Failed to record_quiz_target(): ' + str(err))
+        return err
+
+    def release_quiz(self, i_quiz: int, throw: bool = True) -> PqaError:
+        c_err = ctypes.c_void_p()
+        c_err.value = pqa_core.PqaEngine_ReleaseQuiz(self.c_engine, ctypes.c_int64(i_quiz))
+        err = PqaError.factor(c_err)
+        if err:
+            if throw:
+                raise PqaException('Failed to release_quiz(): ' + str(err))
+        return err
+
+    def save_kb(self, file_path: str, b_double_buffer: bool, throw: bool = True) -> PqaError:
+        c_err = ctypes.c_void_p()
+        c_err.value = pqa_core.PqaEngine_SaveKB(self.c_engine, Utils.str_to_c_char_p(file_path),
+            ctypes.c_bool(b_double_buffer))
+        err = PqaError.factor(c_err)
+        if err:
+            if throw:
+                raise PqaException('Failed to save_kb(): ' + str(err))
+        return err
+
 
 class PqaEngineFactory:
     instance = None

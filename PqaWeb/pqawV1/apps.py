@@ -9,12 +9,10 @@ class Pqawv1Config(AppConfig):
     # https://stackoverflow.com/questions/6791911/execute-code-when-django-starts-once-only
     def ready(self):
         print('Startup of subsystems for PID=%s...' % (os.getpid(),))
-
-        # probqa.debug_break()
-        input('Attach the debugger and press ENTER')
-
+        # input('Attach the debugger and press ENTER')
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
+
         # Test creation of the engine
         engine, err = probqa.PqaEngineFactory.instance.create_cpu_engine(probqa.EngineDefinition(
             n_answers = 5, # Use 0 or 1 to trigger an error
@@ -43,6 +41,15 @@ class Pqawv1Config(AppConfig):
         i_quiz2 = engine.resume_quiz([probqa.AnsweredQuestion(0, 1), probqa.AnsweredQuestion(1, 2)])
         print('Quizzes:', i_quiz1, i_quiz2)
         print('Next questions:', engine.next_question(i_quiz1), engine.next_question(i_quiz2))
+        print('Active questions:', engine.get_active_question_id(i_quiz1), engine.get_active_question_id(i_quiz2))
+        engine.record_answer(i_quiz1, 0)
+        engine.record_answer(i_quiz2, 1)
+        print('Top targets:', engine.list_top_targets(i_quiz1, 3), engine.list_top_targets(i_quiz2, 3))
+        engine.record_quiz_target(i_quiz1, 3, 1.1)
+        engine.record_quiz_target(i_quiz2, 4, 0.9)
+        engine.release_quiz(i_quiz1)
+        engine.release_quiz(i_quiz2)
+        engine.save_kb('../../Data/KBs/Привет.kb', True)
 
         engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(os.path.join(
             settings.BASE_DIR, '../../Data/KBs/current.kb'))
