@@ -9,4 +9,4 @@ FOR %%e in (dll pdb) DO (
   )
 )
 python manage.py runserver
-pause
+REM pause

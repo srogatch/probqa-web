@@ -128,3 +128,7 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.realpath(os.path.join(BASE_DIR, '../../Data/MediaRoot'))
 
 MEDIA_URL = '/media/'
+
+
+# KB (knowledge base) files
+KB_ROOT = os.path.join(BASE_DIR, '../../Data/KBs/')
