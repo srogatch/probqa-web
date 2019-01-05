@@ -10,6 +10,7 @@ class Pqawv1Config(AppConfig):
     def ready(self):
         print('Startup of subsystems for PID=%s...' % (os.getpid(),))
         # input('Attach the debugger and press ENTER')
+
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
 
