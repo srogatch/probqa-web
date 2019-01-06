@@ -703,7 +703,7 @@ class PqaEngineFactory:
             err = PqaError.factor(c_err)
         if (c_engine.value is None) or (c_engine.value == 0):
             raise PqaException('Couldn\'t create a CPU Engine due to a native error: ' + str(err))
-        return (PqaEngine(c_engine), err)
+        return PqaEngine(c_engine), err
 
     def load_cpu_engine(self, file_path:str, mem_pool_max_bytes:int = EngineDefinition.DEFAULT_MEM_POOL_MAX_BYTES
                         ) -> Tuple[PqaEngine, PqaError]:
@@ -716,7 +716,21 @@ class PqaEngineFactory:
             err = PqaError.factor(c_err)
         if (c_engine.value is None) or (c_engine.value == 0):
             raise PqaException('Couldn\'t load a CPU Engine due to a native error: ' + str(err))
-        return (PqaEngine(c_engine), err)
+        return PqaEngine(c_engine), err
+
 
 PqaEngineFactory.instance = PqaEngineFactory()
 
+
+class MaintenanceLock:
+    def __init__(self, engine: PqaEngine, force_quizzes:bool):
+        self.engine = engine
+        self.force_quizzes = force_quizzes
+
+    def __enter__(self) -> None:
+        self.engine.start_maintenance(self.force_quizzes)
+
+    def __exit__(self, exc_type, exc_value, exc_trace) -> None:
+        self.engine.finish_maintenance()
+        # Exception must be re-raised next, according to
+        # https://stackoverflow.com/questions/28157929/python-how-to-safely-handle-an-exception-inside-a-context-manager

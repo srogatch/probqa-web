@@ -18,12 +18,11 @@ from django.urls import include, path
 
 from django.conf import settings
 from django.conf.urls.static import static
-import pqawV1.views
+
 
 urlpatterns = [
-    path('admin/sync-sql-kb/', pqawV1.views.sync_sql_kb),
+    path('admin/custom/', include('pqawV1.admin_custom_urls')),
     path('admin/', admin.site.urls),
-    # path('pqawV1/', include('pqawV1.urls')),
-    path('', include('pqawV1.urls')),
+    path('', include('pqawV1.urls')),  # path('pqawV1/', include('pqawV1.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # In production, configure Apache to serve /media/ as the specified folder on disk

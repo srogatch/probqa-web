@@ -130,5 +130,8 @@ MEDIA_ROOT = os.path.realpath(os.path.join(BASE_DIR, '../../Data/MediaRoot'))
 MEDIA_URL = '/media/'
 
 
-# KB (knowledge base) files
+# KB (knowledge base) files and configuration
 KB_ROOT = os.path.join(BASE_DIR, '../../Data/KBs/')
+PQA_N_ANSWERS = 5  # PQA - Probabilistic Question Asking
+PQA_MIN_TARGETS = 2
+PQA_MIN_QUESTIONS = 1
