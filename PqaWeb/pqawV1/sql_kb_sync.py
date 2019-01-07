@@ -7,8 +7,10 @@ from django.conf import settings
 from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition
 from django.db import transaction
 
+
 class SksException(Exception):
     pass
+
 
 class SqlKbSync:
     def __init__(self):
@@ -85,7 +87,8 @@ class SqlKbSync:
                 #   SQL DB and restore the engine from backup.
                 # In multi-threaded environment there would be a chance that some user can connect in the moment between
                 #   when engine accepts the requests, but database is not yet ready (the current transaction is not yet
-                #   comitted). In this case the user gets nonsense responses from the website.
+                #   committed). In this case the user gets nonsense responses from the website, and (!!!) trains the
+                #   engine with nonsense!!!
                 self.engine.finish_maintenance()
         except:
             exc_chain = traceback.format_exc()

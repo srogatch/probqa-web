@@ -3,12 +3,21 @@ import traceback
 from django.conf import settings
 import ProbQAInterop.ProbQA as probqa
 from .models import KnowledgeBase
+from readerwriterlock import rwlock
+
 
 class Pivot:
     instance = None
 
     def __init__(self):
         self.engine = None
+        self.main_lock = rwlock.RWLockWrite()
+
+    def lock_read(self):
+        return self.main_lock.gen_rlock()
+
+    def lock_write(self):
+        return self.main_lock.gen_wlock()
 
     def set_engine(self, engine: probqa.PqaEngine):
         self.engine = engine
