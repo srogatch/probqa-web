@@ -4,7 +4,7 @@ import datetime
 import os
 import traceback
 from django.conf import settings
-from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition
+from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition, AddQuestionParam, AddTargetParam
 from django.db import transaction
 
 
@@ -83,13 +83,44 @@ class SqlKbSync:
                 perm_del_qus = [q.pqa_id for q in del_questions if q.pqa_id is not None]
                 comp_del_qus = self.engine.question_comp_from_perm(perm_del_qus)
                 self.engine.remove_questions(comp_del_qus)
+                del_questions.delete()
+                add_questions_db = questions.filter(pqa_id=None)
+
+                targets = Target.objects.only('id', 'pqa_id', 'retain')
+                del_targets = targets.filter(retain=False)
+                perm_del_tas = [t.pqa_id for t in del_targets if t.pqa_id is not None]
+                comp_del_tas = self.engine.target_comp_from_perm(perm_del_tas)
+                self.engine.remove_targets(comp_del_tas)
+                del_targets.delete()
+                add_targets_db = targets.filter(pqa_id=None)
+
+                add_question_params = [AddQuestionParam()] * len(add_questions_db)
+                add_target_params = [AddTargetParam()] * len(add_targets_db)
+                self.engine.add_qs_ts(add_question_params, add_target_params)
+
+                comp_new_qus = [aqp.i_question for aqp in add_question_params]
+                perm_new_qus = self.engine.question_perm_from_comp(comp_new_qus)
+                comp_new_tas = [atp.i_target for atp in add_target_params]
+                perm_new_tas = self.engine.target_perm_from_comp(comp_new_tas)
+
+                for aqdb, perm_qid in zip(add_questions_db, perm_new_qus):
+                    aqdb.pqa_id = perm_qid
+                for atdb, perm_tid in zip(add_targets_db, perm_new_tas):
+                    atdb.pqa_id = perm_tid
+
+                # Below is a very slow way to do this, but there doesn't seem to be something better in Django ORM
+                for q in add_questions_db:
+                    q.save()
+                for t in add_targets_db:
+                    t.save()
+
+                # It returns the remapping of compact IDs that we don't need because we use permanent IDs
+                self.engine.compact()
+
                 # In the end, get the engine out of maintenance, however, still if this fails then we have to rollback
                 #   SQL DB and restore the engine from backup.
-                # In multi-threaded environment there would be a chance that some user can connect in the moment between
-                #   when engine accepts the requests, but database is not yet ready (the current transaction is not yet
-                #   committed). In this case the user gets nonsense responses from the website, and (!!!) trains the
-                #   engine with nonsense!!!
                 self.engine.finish_maintenance()
+            self.res_msg = 'Existing engine has been synchronized with SQL DB'
         except:
             exc_chain = traceback.format_exc()
             self.engine.shutdown(self.goal_kb_path + '.broken')  # This engine is broken
@@ -104,6 +135,7 @@ class SqlKbSync:
                 # Restore to even older version of the engine - which is referenced by the DB
                 try:
                     Pivot.instance.reset_engine()
+                    self.engine = Pivot.instance.get_engine()
                 except:
                     exc_chain = traceback.format_exc() + '\n when handling \n' + exc_chain
                     raise SksException('Failed even to reset engine: ' + exc_chain)
