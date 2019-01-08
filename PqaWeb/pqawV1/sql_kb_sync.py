@@ -117,10 +117,11 @@ class SqlKbSync:
                 # It returns the remapping of compact IDs that we don't need because we use permanent IDs
                 self.engine.compact()
 
+                self.engine.save_kb(self.goal_kb_path, False)
+                KnowledgeBase(path=self.new_kb_file_name).save()
                 # In the end, get the engine out of maintenance, however, still if this fails then we have to rollback
                 #   SQL DB and restore the engine from backup.
                 self.engine.finish_maintenance()
-            self.res_msg = 'Existing engine has been synchronized with SQL DB'
         except:
             exc_chain = traceback.format_exc()
             self.engine.shutdown(self.goal_kb_path + '.broken')  # This engine is broken
@@ -141,6 +142,7 @@ class SqlKbSync:
                     raise SksException('Failed even to reset engine: ' + exc_chain)
                 raise SksException('Engine is reset after: ' + exc_chain)
             raise SksException('Engine is restored from backup after: ' + exc_chain)
+        self.res_msg = 'Existing engine has been synchronized with SQL DB'
 
     def go(self):
         try:
