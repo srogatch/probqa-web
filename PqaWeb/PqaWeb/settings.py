@@ -135,3 +135,8 @@ KB_ROOT = os.path.join(BASE_DIR, '../../Data/KBs/')
 PQA_N_ANSWERS = 5  # PQA - Probabilistic Question Asking
 PQA_MIN_TARGETS = 2
 PQA_MIN_QUESTIONS = 1
+
+# Backup
+ARCHIVE_DIRECTORY = 'E:/Backup/ProbQA/WebSite/'
+ARCHIVE_FORMAT = 'bz2'  # The options are 'gz' and 'bz2'
+ARCHIVE_FILENAME = '%Y-%m-%d_%H-%M-%S_%f_sql_media'

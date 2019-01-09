@@ -15,7 +15,10 @@
     <table>
         <tr>
             <td>
-                <a href="/admin/custom/sync-sql-kb/">Synchronize SQL-KB</a>
+                <a href="{% url 'admin-custom:sync-sql-kb' %}">Synchronize SQL-KB</a>
+            </td>
+            <td>
+                <a href="{% url 'admin-custom:backup-all' %}">Backup All</a>
             </td>
         </tr>
     </table>

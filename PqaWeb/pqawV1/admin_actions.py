@@ -6,13 +6,14 @@ import traceback
 from django.conf import settings
 from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition, AddQuestionParam, AddTargetParam
 from django.db import transaction
+import ThirdParty.DjangoArchive.archive as backupper
 
 
 class SksException(Exception):
     pass
 
 
-class SqlKbSync:
+class AdminActions:
     def __init__(self):
         self.engine = Pivot.instance.get_engine()
         self.utc_now = datetime.datetime.utcnow()
@@ -144,7 +145,7 @@ class SqlKbSync:
             raise SksException('Engine is restored from backup after: ' + exc_chain)
         self.res_msg = 'Existing engine has been synchronized with SQL DB'
 
-    def go(self):
+    def sync_sql_kb(self):
         try:
             if self.engine:
                 self.use_existing_engine()
@@ -157,3 +158,17 @@ class SqlKbSync:
             self.maybe_create_engine()
         except:
             self.res_msg = traceback.format_exc()
+
+    def backup_all(self):
+        # from django.core.management import call_command
+        # call_command('archive')  # django-archive is not stable yet for this
+        # To restore: https://coderwall.com/p/mvsoyg/django-dumpdata-and-loaddata
+        #   ./manage.py loaddata db.json
+        backupper.Command().handle()
+        self.res_msg = 'SQL DB and media files have been backed up.\n'
+        if self.engine:
+            # Use double-buffering because we are saving a hot engine
+            self.engine.save_kb(os.path.join(settings.ARCHIVE_DIRECTORY, self.new_kb_file_name), True)
+            self.res_msg += 'ProbQA KB has been backed up.'
+        else:
+            self.res_msg += 'No engine to backup.'
