@@ -185,14 +185,24 @@ class AdminActions:
 
     def async_backup_all(self):
         bu = Backupper(self.timestamp_file_name)
-        with Pivot.instance.lock_read():
+        tar = None
+        lr = Pivot.instance.lock_read()
+        lr.acquire()
+        try:
             latest_kb_path = Pivot.instance.get_latest_kb_path()
-            with bu.create_archive() as tar:
-                bu.dump_sql_db(tar)
-                bu.dump_media(tar)
-                bu.dump_meta(tar)
-                # Add the engine to the archive
-                tar.add(latest_kb_path, os.path.relpath(latest_kb_path, settings.KB_ROOT))
+            tar = bu.create_archive()
+            bu.dump_sql_db(tar)
+            bu.dump_media(tar)
+            lr.release()
+            lr = None
+            # Add the engine to the archive
+            tar.add(latest_kb_path, os.path.relpath(latest_kb_path, settings.KB_ROOT))
+            bu.dump_meta(tar)
+        finally:
+            if lr:
+                lr.release()
+            if tar:
+                tar.close()
         print('BACKUP ALL: completed successfully!')
 
     def start_backup_all(self):
@@ -200,5 +210,5 @@ class AdminActions:
         t = Thread(target=self.async_backup_all, name='Backupper thread')
         t.start()
         self.res_msg = AdminActions.format_engine_save_status(engine_saved)
-        self.res_msg += ('A backup of SQL DB and media files, as well as archiving of the engine, have been launched'
+        self.res_msg += (' A backup of SQL DB and media files, as well as archiving of the engine, have been launched'
                          ' asynchronously. See the console output for results\n')
