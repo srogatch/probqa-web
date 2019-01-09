@@ -22,7 +22,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 # Docs: https://django-archive.readthedocs.io/en/latest/index.html
 # Repo: https://github.com/nathan-osman/django-archive
-from datetime import datetime
+# To restore: https://coderwall.com/p/mvsoyg/django-dumpdata-and-loaddata
+#   ./manage.py loaddata db.json
+# Usage after fixed:
+# from django.core.management import call_command
+# call_command('archive')  # django-archive is not stable yet for this
 from io import BytesIO
 from json import dump
 from os import path
@@ -31,7 +35,6 @@ from tarfile import TarInfo, TarFile
 from django.apps.registry import apps
 from django.conf import settings
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
 from django.db import models
 from django.utils.encoding import smart_bytes
 
@@ -63,36 +66,26 @@ class MixedIO(BytesIO):
         BytesIO.write(self, smart_bytes(data))
 
 
-class Command(BaseCommand):
+class Backupper:
     """
     Create a compressed archive of database tables and uploaded media.
     """
 
-    help = "Create a compressed archive of database tables and uploaded media."
+    def __init__(self, timestamp_file_name: str):
+        self.timestamp_file_name = timestamp_file_name
 
-    def handle(self, *args, **kwargs):
-        """
-        Process the command.
-        """
-        with self._create_archive() as tar:
-            self._dump_db(tar)
-            self._dump_files(tar)
-            self._dump_meta(tar)
-        self.stdout.write("Backup completed.")
-
-    def _create_archive(self):
+    def create_archive(self):
         """
         Create the archive and return the TarFile.
         """
-        filename = getattr(settings, 'ARCHIVE_FILENAME', '%Y-%m-%d--%H-%M-%S')
         fmt = getattr(settings, 'ARCHIVE_FORMAT', 'bz2')
         absolute_path = path.join(
             getattr(settings, 'ARCHIVE_DIRECTORY', ''),
-            '%s.tar.%s' % (datetime.utcnow().strftime(filename), fmt)
+            '%s_sql_media.tar.%s' % (self.timestamp_file_name, fmt)
         )
         return TarFile.open(absolute_path, 'w:%s' % fmt)
 
-    def _dump_db(self, tar):
+    def dump_sql_db(self, tar):
         """
         Dump the rows in each model to the archive.
         """
@@ -111,7 +104,7 @@ class Command(BaseCommand):
         info.size = data.rewind()
         tar.addfile(info, data)
 
-    def _dump_files(self, tar):
+    def dump_media(self, tar):
         """
         Dump all uploaded media to the archive.
         """
@@ -139,7 +132,7 @@ class Command(BaseCommand):
                             finally:
                                 field.close()
 
-    def _dump_meta(self, tar):
+    def dump_meta(self, tar):
         """
         Dump metadata to the archive.
         """

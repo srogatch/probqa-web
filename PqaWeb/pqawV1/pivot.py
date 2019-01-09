@@ -31,10 +31,9 @@ class Pivot:
         # If something later raises, keep no engine active
         self.engine = None
         # Take KB name from SQL DB
-        latest_kb = KnowledgeBase.objects.order_by('-timestamp').first()
-        if latest_kb:
-            self.engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(os.path.join(
-                settings.KB_ROOT, latest_kb.path))
+        latest_kb_path = Pivot.get_latest_kb_path()
+        if latest_kb_path:
+            self.engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(latest_kb_path)
             if err:
                 print('The engine is loaded nevertheless an error:', err.to_string(True))
             dims = self.engine.copy_dims()
@@ -44,6 +43,13 @@ class Pivot:
         else:
             print('No knowledge base references found in the SQL database.')
             return False
+
+    @staticmethod
+    def get_latest_kb_path() -> str:
+        latest_kb = KnowledgeBase.objects.order_by('-timestamp').first()
+        if latest_kb is None:
+            return None
+        return os.path.join(settings.KB_ROOT, latest_kb.path)
 
 
 Pivot.instance = Pivot()

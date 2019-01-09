@@ -1,12 +1,17 @@
-from .pivot import Pivot
-from .models import *
 import datetime
 import os
 import traceback
+from threading import Thread
+from tarfile import TarInfo
+
 from django.conf import settings
-from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition, AddQuestionParam, AddTargetParam
 from django.db import transaction
-import ThirdParty.DjangoArchive.archive as backupper
+
+from ThirdParty.DjangoArchive.backupper import Backupper
+
+from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition, AddQuestionParam, AddTargetParam
+from .pivot import Pivot
+from .models import *
 
 
 class SksException(Exception):
@@ -15,9 +20,10 @@ class SksException(Exception):
 
 class AdminActions:
     def __init__(self):
-        self.engine = Pivot.instance.get_engine()
+        self.engine = None
         self.utc_now = datetime.datetime.utcnow()
-        self.new_kb_file_name = self.utc_now.strftime('%Y-%m-%d_%H-%M-%S_%f.kb')
+        self.timestamp_file_name = self.utc_now.strftime('%Y-%m-%d_%H-%M-%S_%f')
+        self.new_kb_file_name = self.timestamp_file_name + '.kb'
         self.goal_kb_path = os.path.join(settings.KB_ROOT, self.new_kb_file_name)
         self.res_msg = None  # Result message for the admin
 
@@ -47,15 +53,15 @@ class AdminActions:
             i = 0
             for q in questions:
                 if q.pqa_id is not None:
-                    raise SksException('pqa_id=%d is assigned to a question - there is a risk we are overwriting an' +
-                                       ' existing engine!' % (q.pqa_id,))
+                    raise SksException('pqa_id=%d is assigned to a question - there is a risk we are overwriting an'
+                                       ' existing engine!' % q.pqa_id)
                 q.pqa_id = perm_question_ids[i]
                 i += 1
             i = 0
             for t in targets:
                 if t.pqa_id is not None:
-                    raise SksException('pqa_id=%d is assigned to a target - there is a risk we are overwriting an' +
-                                       ' existing engine!' % (t.pqa_id,))
+                    raise SksException('pqa_id=%d is assigned to a target - there is a risk we are overwriting an'
+                                       ' existing engine!' % t.pqa_id)
                 t.pqa_id = perm_target_ids[i]
                 i += 1
             # Below is a very slow way to do this, but there doesn't seem to be something better in Django ORM
@@ -147,28 +153,52 @@ class AdminActions:
 
     def sync_sql_kb(self):
         try:
-            if self.engine:
-                self.use_existing_engine()
-                return
-            # Load engine referenced by the KB
-            if Pivot.instance.reset_engine():
+            with Pivot.instance.lock_write():
                 self.engine = Pivot.instance.get_engine()
-                self.use_existing_engine()
-                return
-            self.maybe_create_engine()
+                if self.engine:
+                    self.use_existing_engine()
+                    return
+                # Load engine referenced by the KB
+                if Pivot.instance.reset_engine():
+                    self.engine = Pivot.instance.get_engine()
+                    self.use_existing_engine()
+                    return
+                self.maybe_create_engine()
         except:
             self.res_msg = traceback.format_exc()
 
-    def backup_all(self):
-        # from django.core.management import call_command
-        # call_command('archive')  # django-archive is not stable yet for this
-        # To restore: https://coderwall.com/p/mvsoyg/django-dumpdata-and-loaddata
-        #   ./manage.py loaddata db.json
-        backupper.Command().handle()
-        self.res_msg = 'SQL DB and media files have been backed up.\n'
-        if self.engine:
-            # Use double-buffering because we are saving a hot engine
-            self.engine.save_kb(os.path.join(settings.ARCHIVE_DIRECTORY, self.new_kb_file_name), True)
-            self.res_msg += 'ProbQA KB has been backed up.'
+    def save_engine(self) -> bool:
+        with Pivot.instance.lock_write():
+            self.engine = Pivot.instance.get_engine()
+            if not self.engine:
+                return False
+            self.engine.save_kb(self.goal_kb_path, False)
+            KnowledgeBase(path=self.new_kb_file_name).save()
+        return True
+
+    @staticmethod
+    def format_engine_save_status(engine_saved: bool) -> str:
+        if engine_saved:
+            return 'ProbQA KB has been saved.'
         else:
-            self.res_msg += 'No engine to backup.'
+            return 'No engine to save.'
+
+    def async_backup_all(self):
+        bu = Backupper(self.timestamp_file_name)
+        with Pivot.instance.lock_read():
+            latest_kb_path = Pivot.instance.get_latest_kb_path()
+            with bu.create_archive() as tar:
+                bu.dump_sql_db(tar)
+                bu.dump_media(tar)
+                bu.dump_meta(tar)
+                # Add the engine to the archive
+                tar.add(latest_kb_path, os.path.relpath(latest_kb_path, settings.KB_ROOT))
+        print('BACKUP ALL: completed successfully!')
+
+    def start_backup_all(self):
+        engine_saved = self.save_engine()
+        t = Thread(target=self.async_backup_all, name='Backupper thread')
+        t.start()
+        self.res_msg = AdminActions.format_engine_save_status(engine_saved)
+        self.res_msg += ('A backup of SQL DB and media files, as well as archiving of the engine, have been launched'
+                         ' asynchronously. See the console output for results\n')
