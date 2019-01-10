@@ -6,6 +6,22 @@ from .models import KnowledgeBase
 from readerwriterlock import rwlock
 
 
+class EarlyReleaseRWL:
+    def __init__(self, a_rwlock):
+        self.rwlock = a_rwlock
+
+    def __enter__(self):
+        self.rwlock.acquire()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.rwlock.locked():
+            self.rwlock.release()
+
+    def early_release(self):
+        self.rwlock.release()
+
+
 class Pivot:
     instance = None
 
@@ -13,11 +29,11 @@ class Pivot:
         self.engine = None
         self.main_lock = rwlock.RWLockWrite()
 
-    def lock_read(self):
-        return self.main_lock.gen_rlock()
+    def lock_read(self) -> EarlyReleaseRWL:
+        return EarlyReleaseRWL(self.main_lock.gen_rlock())
 
-    def lock_write(self):
-        return self.main_lock.gen_wlock()
+    def lock_write(self) -> EarlyReleaseRWL:
+        return EarlyReleaseRWL(self.main_lock.gen_wlock())
 
     def set_engine(self, engine: probqa.PqaEngine):
         self.engine = engine
@@ -53,3 +69,4 @@ class Pivot:
 
 
 Pivot.instance = Pivot()
+

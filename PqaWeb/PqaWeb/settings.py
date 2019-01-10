@@ -26,7 +26,7 @@ SECRET_KEY = Path(os.path.join(BASE_DIR, '../../secret/django_key.txt')).read_te
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.100.103']
 
 
 # Application definition

@@ -22,6 +22,13 @@ def sync_sql_kb(request):
 
 
 @staff_member_required
+def save_engine(request):
+    aa = AdminActions()
+    context = {'res_msg': AdminActions.format_engine_save_status(aa.save_engine())}
+    return render(request, 'admin/action_result.html', context)
+
+
+@staff_member_required
 def backup_all(request):
     aa = AdminActions()
     aa.start_backup_all()

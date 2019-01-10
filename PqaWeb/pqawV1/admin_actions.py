@@ -4,6 +4,8 @@ import traceback
 from threading import Thread
 from tarfile import TarInfo
 
+from typing import Union, List
+from django.db.models import QuerySet
 from django.conf import settings
 from django.db import transaction
 
@@ -27,6 +29,22 @@ class AdminActions:
         self.goal_kb_path = os.path.join(settings.KB_ROOT, self.new_kb_file_name)
         self.res_msg = None  # Result message for the admin
 
+    @staticmethod
+    def validate_answers(questions: Union[QuerySet, List[Question]]) -> None:
+        all_answers = Answer.objects.filter(question__in=questions)
+        q2as = dict()
+        for a in all_answers:
+            q_id = a.question.id
+            if q_id in q2as:
+                q2as[q_id].append(a.option_pos)
+            else:
+                q2as[q_id] = [a.option_pos]
+        for q_id in q2as:
+            if sorted(q2as[q_id]) != list(range(settings.PQA_N_ANSWERS)):
+                raise SksException('Invalid answer options detected for question: '
+                                   + str(Question.objects.get(id=q_id)))
+
+
     # Maybe create an engine if SQL DB contains enough data
     def maybe_create_engine(self):
         with transaction.atomic():
@@ -37,6 +55,8 @@ class AdminActions:
                 # Raise an exception to rollback the transaction
                 raise SksException('At least %d questions are required to launch an engine, but found only %d in the DB'
                     % (settings.PQA_MIN_QUESTIONS, n_questions))
+            AdminActions.validate_answers(questions)
+
             targets = Target.objects.only('id', 'pqa_id', 'retain')
             targets.filter(retain=False).delete()
             n_targets = len(targets)
@@ -44,6 +64,7 @@ class AdminActions:
                 # Raise an exception to rollback the transaction
                 raise SksException('At least %d targets are required to launch an engine, but found only %d in the DB'
                     % (settings.PQA_MIN_TARGETS, n_targets))
+
             ed = EngineDefinition(settings.PQA_N_ANSWERS, n_questions, n_targets)
             self.engine, err = PqaEngineFactory.instance.create_cpu_engine(ed)
             if err:
@@ -92,6 +113,7 @@ class AdminActions:
                 self.engine.remove_questions(comp_del_qus)
                 del_questions.delete()
                 add_questions_db = questions.filter(pqa_id=None)
+                AdminActions.validate_answers(add_questions_db)
 
                 targets = Target.objects.only('id', 'pqa_id', 'retain')
                 del_targets = targets.filter(retain=False)
@@ -101,8 +123,8 @@ class AdminActions:
                 del_targets.delete()
                 add_targets_db = targets.filter(pqa_id=None)
 
-                add_question_params = [AddQuestionParam()] * len(add_questions_db)
-                add_target_params = [AddTargetParam()] * len(add_targets_db)
+                add_question_params = [AddQuestionParam() for _ in range(len(add_questions_db))]
+                add_target_params = [AddTargetParam() for _ in range(len(add_targets_db))]
                 self.engine.add_qs_ts(add_question_params, add_target_params)
 
                 comp_new_qus = [aqp.i_question for aqp in add_question_params]
@@ -146,9 +168,9 @@ class AdminActions:
                     self.engine = Pivot.instance.get_engine()
                 except:
                     exc_chain = traceback.format_exc() + '\n when handling \n' + exc_chain
-                    raise SksException('Failed even to reset engine: ' + exc_chain)
-                raise SksException('Engine is reset after: ' + exc_chain)
-            raise SksException('Engine is restored from backup after: ' + exc_chain)
+                    raise SksException('Failed even to reset engine: \n\n' + exc_chain)
+                raise SksException('Engine is reset after: \n\n' + exc_chain)
+            raise SksException('Engine is restored from backup after: \n\n' + exc_chain)
         self.res_msg = 'Existing engine has been synchronized with SQL DB'
 
     def sync_sql_kb(self):
@@ -185,24 +207,14 @@ class AdminActions:
 
     def async_backup_all(self):
         bu = Backupper(self.timestamp_file_name)
-        tar = None
-        lr = Pivot.instance.lock_read()
-        lr.acquire()
-        try:
-            latest_kb_path = Pivot.instance.get_latest_kb_path()
-            tar = bu.create_archive()
-            bu.dump_sql_db(tar)
-            bu.dump_media(tar)
-            lr.release()
-            lr = None
+        with bu.create_archive() as tar:
+            with Pivot.instance.lock_read():
+                latest_kb_path = Pivot.instance.get_latest_kb_path()
+                bu.dump_sql_db(tar)
+                bu.dump_media(tar)
             # Add the engine to the archive
             tar.add(latest_kb_path, os.path.relpath(latest_kb_path, settings.KB_ROOT))
             bu.dump_meta(tar)
-        finally:
-            if lr:
-                lr.release()
-            if tar:
-                tar.close()
         print('BACKUP ALL: completed successfully!')
 
     def start_backup_all(self):

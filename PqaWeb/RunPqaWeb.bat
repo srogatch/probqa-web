@@ -8,5 +8,5 @@ FOR %%e in (dll pdb) DO (
     XCOPY /Y /F ..\..\..\..\ProbQA\ProbQA\x64\%Configuration%\%%n.%%e .\ProbQAInterop\DLLs\
   )
 )
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 REM pause
