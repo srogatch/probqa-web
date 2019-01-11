@@ -34,6 +34,7 @@ class SessionHelper:
         else:
             self.request.session[Keys.QUIZ_INFOS] = {quiz_id: QuizInfo()}
 
+    # Must not throw
     def deactivate_quiz(self, quiz_id: int) -> None:
         mappings = self.request.session[Keys.QUIZ_INFOS]
         if mappings:
@@ -56,3 +57,9 @@ class SessionHelper:
         info = self.request.session[Keys.QUIZ_INFOS].pop(old_quiz_id)
         self.request.session[Keys.QUIZ_INFOS][new_quiz_id] = info
         self.request.session.modified = True
+
+    def set_active_question(self, quiz_id: int, i_question: int):
+        # Let it throw if quiz_id is not found
+        self.get_quiz_info(quiz_id).i_active_question = i_question
+        self.request.session.modified = True
+

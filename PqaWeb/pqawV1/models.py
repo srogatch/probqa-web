@@ -42,6 +42,7 @@ class Question(models.Model):
 class Answer(models.Model):
     id = models.BigAutoField(primary_key=True)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    # For quiz resuming to work, answer options must not change their positions once created.
     option_pos = models.BigIntegerField('Option position number')
     message = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
