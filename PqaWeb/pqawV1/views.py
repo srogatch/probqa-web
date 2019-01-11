@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .pivot import Pivot
+# from .session_helper import
 
 
 def index(request):
@@ -10,4 +11,4 @@ def index(request):
             lr.early_release()
             return HttpResponse('<h1>Maintenance is in progress.</h1>')
 
-    return HttpResponse("Hello, world. You're at the polls index.")
+        return render(request, 'pqawV1/index.html', context)

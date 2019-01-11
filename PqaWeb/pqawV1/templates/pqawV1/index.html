@@ -1,9 +1,73 @@
-{% if question %}
-    {{ question.message }}
-    <br/>
-    <ul>
-        {% for answer in answers %}
+{% load i18n %}
+<script type="text/javascript">
+    function startNewQuz() {
+        document.getElementById('sel_action').value = 'StartNewQuiz';
+        document.getElementById('quiz_form').submit();
+        return false;
+    }
+    function recordAnswer(optionPos) {
+        document.getElementById('sel_action').value = 'RecordAnswer';
+        document.getElementById('sel_param0').value = String(optionPos);
+        document.getElementById('quiz_form').submit();
+        return false;
+    }
+    function recordTarget(targetId) {
+        document.getElementById('sel_action').value = 'RecordTarget';
+        return false;
+    }
+</script>
+<h2>{% trans 'Find the next game to play' %}</h2>
+<form method="POST" id="quiz_form">
+    {% csrf_token %}
+    <input type="hidden" id="sel_action"/>
+    <input type="hidden" id="sel_param0" />
+    {# For several quizzes open in several tabs #}
+    <input type="hidden" id="cur_quiz_id" value="{{ cur_quiz_id }}"/>
 
-        {% endfor %}
-    </ul>
-{% endif %}
+    <div id="new_quiz_request">
+        <a href="javascript:{}" onclick="return startNewQuz()">{% trans 'Start new quiz' %}</a>
+    </div>
+    <div id="cur_question">
+        {% if question %}
+            <p>{{ question.message }}</p>
+            <br/>
+            <ul>
+                {% for answer in answers %}
+                    <li>
+                        <a href="javascript:{}" onclick="return recordAnswer({{ answer.option_pos }})">
+                            {{ answer.message }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>{% trans 'We have no more questions to ask.' %}</p>
+        {% endif %}
+    </div>
+    <div id="top_targets">
+        <p>{% trans 'Most probably you are looking for:' %}</p>
+        <table id="top_targets_tbl">
+            <thead>
+                <tr>
+                    <th>{% trans 'Game' %}</th>
+                    <th>{% trans 'Prob. %%' %}</th>
+                </tr>
+            </thead>
+            {% for target in targets %}
+            <tr>
+                <td>
+                    <a href="{{ target.link }}" target="_blank" onclick="return recordTarget({{ target.id }})">
+                        {{ target.title }}
+                    </a>
+                    &nbsp;
+                </td>
+                <td>
+                    &nbsp;
+                    {# Must be a formatted string #}
+                    {{ target.probability }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</form>

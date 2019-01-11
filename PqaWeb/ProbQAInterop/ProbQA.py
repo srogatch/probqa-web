@@ -180,6 +180,14 @@ pqa_core.PqaEngine_TargetPermFromComp.argtypes = (ctypes.c_void_p, ctypes.c_int6
 pqa_core.PqaEngine_TargetCompFromPerm.restype = ctypes.c_bool
 pqa_core.PqaEngine_TargetCompFromPerm.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
 
+# PQACORE_API uint8_t PqaEngine_QuizPermFromComp(void *pvEngine, const int64_t count, int64_t *pIds);
+pqa_core.PqaEngine_QuizPermFromComp.restype = ctypes.c_bool
+pqa_core.PqaEngine_QuizPermFromComp.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
+
+# PQACORE_API uint8_t PqaEngine_QuizCompFromPerm(void *pvEngine, const int64_t count, int64_t *pIds);
+pqa_core.PqaEngine_QuizCompFromPerm.restype = ctypes.c_bool
+pqa_core.PqaEngine_QuizCompFromPerm.argtypes = (ctypes.c_void_p, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64))
+
 # PQACORE_API uint64_t PqaEngine_GetTotalQuestionsAsked(void *pvEngine, void **ppError);
 pqa_core.PqaEngine_GetTotalQuestionsAsked.restype = ctypes.c_uint64
 pqa_core.PqaEngine_GetTotalQuestionsAsked.argtypes = (ctypes.c_void_p, ctypes.POINTER(ctypes.c_void_p))
@@ -452,6 +460,12 @@ class PqaEngine:
 
     def target_comp_from_perm(self, ids: List[int]) -> List[int]:
         return self.__call_id_mapping(pqa_core.PqaEngine_TargetCompFromPerm, ids)
+
+    def quiz_perm_from_comp(self, ids: List[int]) -> List[int]:
+        return self.__call_id_mapping(pqa_core.PqaEngine_QuizPermFromComp, ids)
+
+    def quiz_comp_from_perm(self, ids: List[int]) -> List[int]:
+        return self.__call_id_mapping(pqa_core.PqaEngine_QuizCompFromPerm, ids)
 
     def train(self, answered_questions: List[AnsweredQuestion], i_target : int,
               amount: float = 1.0, throw: bool = True) -> PqaError:
