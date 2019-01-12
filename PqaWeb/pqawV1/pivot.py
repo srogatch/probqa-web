@@ -2,7 +2,7 @@ import os
 import traceback
 from django.conf import settings
 import ProbQAInterop.ProbQA as probqa
-from .models import KnowledgeBase
+from .models import KnowledgeBase, Quiz
 from readerwriterlock import rwlock
 
 
@@ -55,6 +55,9 @@ class Pivot:
             dims = self.engine.copy_dims()
             print('Total number of questions asked is %d. Engine dimensions are: %s.'
                   % (self.engine.get_total_questions_asked(), dims))
+            last_quiz = Quiz.objects.order_by('-pqa_id').first()
+            if last_quiz:
+                self.engine.ensure_perm_quiz_greater(last_quiz.pqa_id)
             return True
         else:
             print('No knowledge base references found in the SQL database.')

@@ -5,9 +5,7 @@ from pathlib import Path
 
 class Target(models.Model):
     id = models.BigAutoField(primary_key=True)
-    pqa_id = models.BigIntegerField(
-        'Permanent ID in engine',
-        unique=True, null=True, blank=True)
+    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, null=True, blank=True)
     retain = models.BooleanField(default=True)
     title = models.CharField(max_length=255)
     link = models.TextField(max_length=65535)
@@ -28,9 +26,7 @@ class Target(models.Model):
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
-    pqa_id = models.BigIntegerField(
-        'Permanent ID in engine',
-        unique=True, null=True, blank=True)
+    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, null=True, blank=True)
     retain = models.BooleanField(default=True)
     message = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
@@ -53,6 +49,30 @@ class Answer(models.Model):
     def __str__(self):
         return 'QuestionPqaID=[%s], OptionPos=[%d], Message=[%s], Created=[%s], Modified=[%s]' % (
             str(self.question.pqa_id), self.option_pos, self.message, str(self.created), str(self.modified))
+
+
+class Quiz(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True)
+    # https://github.com/un33k/django-ipware
+    # https://stackoverflow.com/a/16203978/1915854
+    user_ip = models.CharField(max_length=255, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+
+class QuizChoice(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+
+
+class QuizTarget(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    target = models.ForeignKey(Target, on_delete=models.CASCADE)
+    # It's not entirely a foreign key because it marks the end for a range of choices
+    last_choice_id = models.BigIntegerField()
 
 
 class KnowledgeBase(models.Model):
