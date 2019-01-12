@@ -21,22 +21,24 @@ class SessionHelper:
         self.request = request
 
     def is_active_quiz(self, quiz_id: int) -> bool:
-        mappings = self.request.session[Keys.QUIZ_INFOS]
+        mappings = self.request.session.get(Keys.QUIZ_INFOS.value, None)
         if not mappings:
             return False
         return quiz_id in mappings
 
-    def add_active_quiz(self, quiz_id: int) -> None:
-        mappings = self.request.session[Keys.QUIZ_INFOS]
+    def add_active_quiz(self, quiz_id: int) -> QuizInfo:
+        mappings = self.request.session.get(Keys.QUIZ_INFOS.value, None)
+        quiz_info = QuizInfo()
         if mappings:
-            self.request.session[Keys.QUIZ_INFOS][quiz_id] = QuizInfo()
+            self.request.session[Keys.QUIZ_INFOS.value][quiz_id] = quiz_info
             self.request.session.modified = True
         else:
-            self.request.session[Keys.QUIZ_INFOS] = {quiz_id: QuizInfo()}
+            self.request.session[Keys.QUIZ_INFOS.value] = {quiz_id: quiz_info}
+        return quiz_info
 
     # Must not throw
     def deactivate_quiz(self, quiz_id: int) -> None:
-        mappings = self.request.session[Keys.QUIZ_INFOS]
+        mappings = self.request.session.get(Keys.QUIZ_INFOS.value, None)
         if mappings:
             if quiz_id in mappings:
                 mappings.remove(quiz_id)
@@ -45,17 +47,17 @@ class SessionHelper:
     # Note that |aq| here must contain permanent ID
     def add_to_quiz_sequence(self, quiz_id: int, aq: AnsweredQuestion) -> None:
         # Let it throw if quiz_id is not among the active quizzes
-        self.request.session[Keys.QUIZ_INFOS][quiz_id].sequence.append(aq)
+        self.get_quiz_info(quiz_id).sequence.append(aq)
         self.request.session.modified = True
 
     def get_quiz_info(self, quiz_id) -> QuizInfo:
         # Let it throw if quiz_id is not found
-        return self.request.session[Keys.QUIZ_INFOS][quiz_id]
+        return self.request.session[Keys.QUIZ_INFOS.value][quiz_id]
 
     def remap_quiz(self, old_quiz_id: int, new_quiz_id: int) -> None:
         # Let it throw if old_quiz_id is not found
-        info = self.request.session[Keys.QUIZ_INFOS].pop(old_quiz_id)
-        self.request.session[Keys.QUIZ_INFOS][new_quiz_id] = info
+        info = self.request.session[Keys.QUIZ_INFOS.value].pop(old_quiz_id)
+        self.request.session[Keys.QUIZ_INFOS.value][new_quiz_id] = info
         self.request.session.modified = True
 
     def set_active_question(self, quiz_id: int, i_question: int):
@@ -63,3 +65,5 @@ class SessionHelper:
         self.get_quiz_info(quiz_id).i_active_question = i_question
         self.request.session.modified = True
 
+    def mark_modified(self) -> None:
+        self.request.session.modified = True
