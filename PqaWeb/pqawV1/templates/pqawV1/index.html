@@ -14,7 +14,8 @@
     function recordTarget(targetId) {
         document.getElementsByName('sel_action')[0].value = 'RecordTarget';
         document.getElementsByName('sel_param0')[0].value = String(targetId);
-        return false;
+        document.getElementById('quiz_form').submit();
+        return true;
     }
 </script>
 <h1>{% trans 'Find the next game to play' %}</h1>
@@ -56,7 +57,7 @@
             {% for target in targets %}
             <tr>
                 <td>
-                    <a href="{{ target.link }}" target="_blank" onclick="return recordTarget({{ target.id }})">
+                    <a href="{{ target.link }}" target="_blank" onclick="return recordTarget({{ target.perm_id }})">
                         {{ target.title }}
                     </a>
                     &nbsp;

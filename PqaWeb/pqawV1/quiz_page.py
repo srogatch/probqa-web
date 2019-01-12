@@ -5,10 +5,17 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 from ProbQAInterop.ProbQA import PqaEngine, INVALID_PQA_ID, AnsweredQuestion, PqaException
-from .models import Question, QuizChoice, QuizTarget
+from .models import Question, QuizChoice, QuizTarget, Target
 from .utils import silent_int
 from .quiz_registry import QuizRegistry
 
+
+class TargetView:
+    def __init__(self, link: str, title: str, perm_id: int, probability: float):
+        self.link = link
+        self.title = title
+        self.perm_id = perm_id
+        self.probability = probability
 
 class QuizPage:
     def __init__(self, request: HttpRequest, engine: PqaEngine):
@@ -42,6 +49,14 @@ class QuizPage:
         self.context['question'] = question
         if question:
             self.context['answers'] = question.answer_set.order_by('option_pos')
+        top_targets = self.engine.list_top_targets(self.quiz_comp_id, settings.PQA_TOP_TARGETS)
+        i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in top_targets])
+        db_targets = Target.objects.filter(pqa_id__in=i_perm_targets)
+        dbt_refs = {dbt.pqa_id: dbt for dbt in db_targets}
+        self.context['targets'] = [
+            TargetView(dbt_refs[target_perm_id].link, dbt_refs[target_perm_id].title, target_perm_id,
+                       rated_target.prob * 100)
+            for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
         # TODO: implement further
 
     def compute(self) -> None:

@@ -58,4 +58,4 @@ class QuizRegistry:
             last_choice_id = last_choice.id
         else:
             last_choice_id = INVALID_PQA_ID
-        quiz.quiztarget_set.add(QuizTarget(target_pqa_id=i_perm_target, last_choice_id=last_choice_id))
+        quiz.quiztarget_set.add(QuizTarget(target_pqa_id=i_perm_target, last_choice_id=last_choice_id), bulk=False)
