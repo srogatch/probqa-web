@@ -37,6 +37,7 @@ class QuizPage:
         else:
             i_perm_next_question = self.quiz_info.i_active_question
         self.context['question'] = get_object_or_404(Question, pqa_id=i_perm_next_question)
+        self.context['cur_quiz_id'] = self.quiz_id
 
     def compute(self) -> None:
         if self.request.method == 'POST':

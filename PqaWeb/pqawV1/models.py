@@ -17,6 +17,7 @@ class Target(models.Model):
     description = models.TextField(max_length=65535)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         print(self.image.name)
         return 'Title=[%s], Link=[%s], ImageMD5=[%s], Descr=[%s], Created=[%s], Modified=[%s]' % (
@@ -34,6 +35,7 @@ class Question(models.Model):
     message = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return 'PqaID=[%s], Message=[%s], Created=[%s], Modified=[%s]' % (
             str(self.pqa_id), self.message, str(self.created), str(self.modified))
@@ -47,6 +49,7 @@ class Answer(models.Model):
     message = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return 'QuestionPqaID=[%s], OptionPos=[%d], Message=[%s], Created=[%s], Modified=[%s]' % (
             str(self.question.pqa_id), self.option_pos, self.message, str(self.created), str(self.modified))
@@ -56,3 +59,6 @@ class KnowledgeBase(models.Model):
     id = models.BigAutoField(primary_key=True)
     path = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'path=[%s], timestamp=[%s]' % (self.path, str(self.timestamp))

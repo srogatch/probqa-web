@@ -15,6 +15,9 @@ class QuizInfo:
         self.i_active_question = INVALID_PQA_ID
         self.sequence = []
 
+    def __repr__(self):
+        return '<%d, %s>' % (self.i_active_question, str(self.sequence))
+
 
 class SessionHelper:
     def __init__(self, request: HttpRequest):

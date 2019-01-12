@@ -1,36 +1,36 @@
 {% load i18n %}
 <script type="text/javascript">
     function startNewQuz() {
-        document.getElementById('sel_action').value = 'StartNewQuiz';
+        document.getElementsByName('sel_action')[0].value = 'StartNewQuiz';
         document.getElementById('quiz_form').submit();
         return false;
     }
     function recordAnswer(optionPos) {
-        document.getElementById('sel_action').value = 'RecordAnswer';
-        document.getElementById('sel_param0').value = String(optionPos);
+        document.getElementsByName('sel_action')[0].value = 'RecordAnswer';
+        document.getElementsByName('sel_param0')[0].value = String(optionPos);
         document.getElementById('quiz_form').submit();
         return false;
     }
     function recordTarget(targetId) {
-        document.getElementById('sel_action').value = 'RecordTarget';
-        document.getElementById('sel_param0').value = String(targetId);
+        document.getElementsByName('sel_action')[0].value = 'RecordTarget';
+        document.getElementsByName('sel_param0')[0].value = String(targetId);
         return false;
     }
 </script>
-<h2>{% trans 'Find the next game to play' %}</h2>
-<form method="POST" id="quiz_form">
+<h1>{% trans 'Find the next game to play' %}</h1>
+<form method="POST" action="{% url 'pqawV1:index' %}" id="quiz_form">
     {% csrf_token %}
-    <input type="hidden" id="sel_action"/>
-    <input type="hidden" id="sel_param0" />
+    <input type="hidden" name="sel_action"/>
+    <input type="hidden" name="sel_param0"/>
     {# For several quizzes open in several tabs #}
-    <input type="hidden" id="cur_quiz_id" value="{{ cur_quiz_id }}"/>
+    <input type="hidden" name="cur_quiz_id" value="{{ cur_quiz_id }}"/>
 
     <div id="new_quiz_request">
         <a href="javascript:{}" onclick="return startNewQuz()">{% trans 'Start new quiz' %}</a>
     </div>
     <div id="cur_question">
         {% if question %}
-            <p>{{ question.message }}</p>
+            <h2>{{ question.message }}</h2>
             <br/>
             <ul>
                 {% for answer in answers %}

@@ -61,8 +61,12 @@ class Pivot:
             return False
 
     @staticmethod
+    def get_latest_kb() -> KnowledgeBase:
+        return KnowledgeBase.objects.order_by('-timestamp').first()
+
+    @staticmethod
     def get_latest_kb_path() -> str:
-        latest_kb = KnowledgeBase.objects.order_by('-timestamp').first()
+        latest_kb = Pivot.get_latest_kb()
         if latest_kb is None:
             return None
         return os.path.join(settings.KB_ROOT, latest_kb.path)

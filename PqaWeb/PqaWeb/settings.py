@@ -123,6 +123,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# Tweaking Django
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Media files (e.g. uploads)
 MEDIA_ROOT = os.path.realpath(os.path.join(BASE_DIR, '../../Data/MediaRoot'))
