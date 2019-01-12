@@ -37,7 +37,7 @@ class QuizPage:
             self.context['cur_quiz_id'] = self.engine.quiz_perm_from_comp([self.quiz_comp_id])[0]
         else:
             #TODO: verify the code below in debugger
-            self.context['question'] = self.quiz.active_question.get()
+            self.context['question'] = self.quiz.active_question
             self.context['cur_quiz_id'] = self.quiz.pqa_id
         # TODO: implement further
 

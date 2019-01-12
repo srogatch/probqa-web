@@ -213,7 +213,10 @@ class AdminActions:
                 bu.dump_sql_db(tar)
                 bu.dump_media(tar)
             # Add the engine to the archive
-            tar.add(latest_kb_path, os.path.relpath(latest_kb_path, settings.KB_ROOT))
+            if latest_kb_path:
+                tar.add(latest_kb_path, os.path.relpath(latest_kb_path, settings.KB_ROOT))
+            else:
+                print('No engine to backup.')
             bu.dump_meta(tar)
         print('BACKUP ALL: completed successfully!')
 
