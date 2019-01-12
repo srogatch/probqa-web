@@ -54,6 +54,7 @@ class Answer(models.Model):
 class Quiz(models.Model):
     id = models.BigAutoField(primary_key=True)
     pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True)
+    active_question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True)
     # https://github.com/un33k/django-ipware
     # https://stackoverflow.com/a/16203978/1915854
     user_ip = models.CharField(max_length=255, null=True, blank=True)
@@ -62,15 +63,15 @@ class Quiz(models.Model):
 
 class QuizChoice(models.Model):
     id = models.BigAutoField(primary_key=True)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    question_pqa_id = models.BigIntegerField()
+    i_answer = models.BigIntegerField()
 
 
 class QuizTarget(models.Model):
     id = models.BigAutoField(primary_key=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    target = models.ForeignKey(Target, on_delete=models.CASCADE)
+    target_pqa_id = models.BigIntegerField()
     # It's not entirely a foreign key because it marks the end for a range of choices
     last_choice_id = models.BigIntegerField()
 

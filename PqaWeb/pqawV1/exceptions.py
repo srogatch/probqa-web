@@ -1,0 +1,2 @@
+class PqawInternalError(Exception):
+    pass
