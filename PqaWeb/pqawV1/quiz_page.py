@@ -4,7 +4,7 @@ from django.http import HttpRequest, Http404
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from ProbQAInterop.ProbQA import PqaEngine, INVALID_PQA_ID, AnsweredQuestion
+from ProbQAInterop.ProbQA import PqaEngine, INVALID_PQA_ID, AnsweredQuestion, PqaException
 from .models import Question, QuizChoice, QuizTarget
 from .utils import silent_int
 from .quiz_registry import QuizRegistry
@@ -33,12 +33,15 @@ class QuizPage:
             # Save a DB hit by not fetching the quiz
             i_comp_next_question = self.engine.get_active_question_id(self.quiz_comp_id)
             i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
-            self.context['question'] = get_object_or_404(Question, pqa_id=i_perm_next_question)
+            question = get_object_or_404(Question, pqa_id=i_perm_next_question)
             self.context['cur_quiz_id'] = self.engine.quiz_perm_from_comp([self.quiz_comp_id])[0]
         else:
             #TODO: verify the code below in debugger
-            self.context['question'] = self.quiz.active_question
+            question = self.quiz.active_question
             self.context['cur_quiz_id'] = self.quiz.pqa_id
+        self.context['question'] = question
+        if question:
+            self.context['answers'] = question.answer_set.order_by('option_pos')
         # TODO: implement further
 
     def compute(self) -> None:
@@ -92,9 +95,12 @@ class QuizPage:
                 else:
                     i_comp_active_question = self.engine.question_comp_from_perm([active_question.pqa_id])[0]
                 if i_comp_active_question == INVALID_PQA_ID:
-                    i_comp_active_question = self.engine.next_question(self.quiz_comp_id)
-                    active_question_perm_id = self.engine.question_perm_from_comp([i_comp_active_question])[0]
-                    self.quiz.active_question = Question.objects.get(active_question_perm_id)
+                    try:
+                        i_comp_active_question = self.engine.next_question(self.quiz_comp_id)
+                        active_question_perm_id = self.engine.question_perm_from_comp([i_comp_active_question])[0]
+                        self.quiz.active_question = Question.objects.get(active_question_perm_id)
+                    except PqaException:
+                        self.quiz.active_question = None
                     self.quiz.save()
                     if sel_action == 'RecordTarget':
                         i_perm_target = silent_int(sel_param0)
@@ -128,10 +134,13 @@ class QuizPage:
                 self.engine.record_answer(self.quiz_comp_id, option_pos)
                 # TODO: verify that it's committed to the DB below
                 self.quiz.quizchoice_set.add(QuizChoice(question_pqa_id=self.quiz.active_question.pqa_id,
-                                                        i_answer=option_pos))
-                i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
-                i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])
-                self.quiz.i_active_question = Question.objects.get(pqa_id=i_perm_next_question)
+                                                        i_answer=option_pos), bulk=False)
+                try:
+                    i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
+                    i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
+                    self.quiz.active_question = Question.objects.get(pqa_id=i_perm_next_question)
+                except PqaException:
+                    self.quiz.active_question = None
                 self.quiz.save()
             elif sel_action == 'RecordTarget':
                 i_perm_target = silent_int(sel_param0)
