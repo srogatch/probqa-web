@@ -18,4 +18,8 @@ class Pqawv1Config(AppConfig):
 
         from .pivot import Pivot
         Pivot.instance.reset_engine()
+
+        from .quiz_registry import QuizRegistry
+        QuizRegistry.attach_session_expiration_handler()
+
         print('Startup has finished.')

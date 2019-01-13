@@ -17,6 +17,7 @@ class TargetView:
         self.perm_id = perm_id
         self.probability = probability
 
+
 class QuizPage:
     def __init__(self, request: HttpRequest, engine: PqaEngine):
         self.request = request
@@ -57,8 +58,7 @@ class QuizPage:
             TargetView(dbt_refs[target_perm_id].link, dbt_refs[target_perm_id].title, target_perm_id,
                        rated_target.prob * 100)
             for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
-        # TODO: implement further
-
+        
     def compute(self) -> None:
         if self.request.method == 'POST':
             # Continue quiz, if it's valid
@@ -140,23 +140,24 @@ class QuizPage:
                     raise Http404('Answer option position is out of range: ' + str(option_pos))
                 if not self.quiz:
                     self.quiz = self.quiz_reg.get_quiz(quiz_perm_id)
-                # TODO: remove self-verification after the program is stable
-                # Self-verification code start
                 i_comp_active_question = self.engine.get_active_question_id(self.quiz_comp_id)
-                i_perm_active_question = self.engine.question_perm_from_comp([i_comp_active_question])[0]
-                assert self.quiz.active_question.pqa_id == i_perm_active_question
-                # Self-verification code end
-                self.engine.record_answer(self.quiz_comp_id, option_pos)
-                # TODO: verify that it's committed to the DB below
-                self.quiz.quizchoice_set.add(QuizChoice(question_pqa_id=self.quiz.active_question.pqa_id,
-                                                        i_answer=option_pos), bulk=False)
-                try:
-                    i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
-                    i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
-                    self.quiz.active_question = Question.objects.get(pqa_id=i_perm_next_question)
-                except PqaException:
-                    self.quiz.active_question = None
-                self.quiz.save()
+                if (i_comp_active_question == INVALID_PQA_ID) or (self.quiz.active_question is None):
+                    # No more questions to ask
+                    assert (i_comp_active_question == INVALID_PQA_ID) and (self.quiz.active_question is None)
+                else:
+                    i_perm_active_question = self.engine.question_perm_from_comp([i_comp_active_question])[0]
+                    assert self.quiz.active_question.pqa_id == i_perm_active_question
+                    self.engine.record_answer(self.quiz_comp_id, option_pos)
+                    # TODO: verify that it's committed to the DB below
+                    self.quiz.quizchoice_set.add(QuizChoice(question_pqa_id=self.quiz.active_question.pqa_id,
+                                                            i_answer=option_pos), bulk=False)
+                    try:
+                        i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
+                        i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
+                        self.quiz.active_question = Question.objects.get(pqa_id=i_perm_next_question)
+                    except PqaException:
+                        self.quiz.active_question = None
+                    self.quiz.save()
             elif sel_action == 'RecordTarget':
                 i_perm_target = silent_int(sel_param0)
                 if i_perm_target is not None:

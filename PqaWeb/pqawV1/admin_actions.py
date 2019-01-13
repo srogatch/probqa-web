@@ -190,7 +190,7 @@ class AdminActions:
             self.res_msg = traceback.format_exc()
 
     def save_engine(self) -> bool:
-        with Pivot.instance.lock_write():
+        with Pivot.instance.lock_read():
             self.engine = Pivot.instance.get_engine()
             if not self.engine:
                 return False
