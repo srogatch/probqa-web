@@ -61,10 +61,11 @@ class QuizPage:
 
     # Returns the compact ID for the next question
     def next_question_update_quiz(self) -> int:
+        i_comp_active_question = INVALID_PQA_ID
         try:
             i_comp_active_question = self.engine.next_question(self.quiz_comp_id)
             active_question_perm_id = self.engine.question_perm_from_comp([i_comp_active_question])[0]
-            self.quiz.active_question = Question.objects.get(active_question_perm_id)
+            self.quiz.active_question = Question.objects.get(pqa_id=active_question_perm_id)
         except PqaException:
             self.quiz.active_question = None
         self.quiz.save()
