@@ -58,7 +58,18 @@ class QuizPage:
             TargetView(dbt_refs[target_perm_id].link, dbt_refs[target_perm_id].title, target_perm_id,
                        rated_target.prob * 100)
             for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
-        
+
+    # Returns the compact ID for the next question
+    def next_question_update_quiz(self) -> int:
+        try:
+            i_comp_active_question = self.engine.next_question(self.quiz_comp_id)
+            active_question_perm_id = self.engine.question_perm_from_comp([i_comp_active_question])[0]
+            self.quiz.active_question = Question.objects.get(active_question_perm_id)
+        except PqaException:
+            self.quiz.active_question = None
+        self.quiz.save()
+        return i_comp_active_question
+
     def compute(self) -> None:
         if self.request.method == 'POST':
             # Continue quiz, if it's valid
@@ -110,13 +121,7 @@ class QuizPage:
                 else:
                     i_comp_active_question = self.engine.question_comp_from_perm([active_question.pqa_id])[0]
                 if i_comp_active_question == INVALID_PQA_ID:
-                    try:
-                        i_comp_active_question = self.engine.next_question(self.quiz_comp_id)
-                        active_question_perm_id = self.engine.question_perm_from_comp([i_comp_active_question])[0]
-                        self.quiz.active_question = Question.objects.get(active_question_perm_id)
-                    except PqaException:
-                        self.quiz.active_question = None
-                    self.quiz.save()
+                    self.next_question_update_quiz()
                     if sel_action == 'RecordTarget':
                         i_perm_target = silent_int(sel_param0)
                         if i_perm_target is not None:
@@ -148,16 +153,9 @@ class QuizPage:
                     i_perm_active_question = self.engine.question_perm_from_comp([i_comp_active_question])[0]
                     assert self.quiz.active_question.pqa_id == i_perm_active_question
                     self.engine.record_answer(self.quiz_comp_id, option_pos)
-                    # TODO: verify that it's committed to the DB below
                     self.quiz.quizchoice_set.add(QuizChoice(question_pqa_id=self.quiz.active_question.pqa_id,
                                                             i_answer=option_pos), bulk=False)
-                    try:
-                        i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
-                        i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
-                        self.quiz.active_question = Question.objects.get(pqa_id=i_perm_next_question)
-                    except PqaException:
-                        self.quiz.active_question = None
-                    self.quiz.save()
+                    self.next_question_update_quiz()
             elif sel_action == 'RecordTarget':
                 i_perm_target = silent_int(sel_param0)
                 if i_perm_target is not None:
