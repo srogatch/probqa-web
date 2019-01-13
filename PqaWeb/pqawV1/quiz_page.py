@@ -5,7 +5,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 
 from ProbQAInterop.ProbQA import PqaEngine, INVALID_PQA_ID, AnsweredQuestion, PqaException
-from .models import Question, QuizChoice, QuizTarget, Target
+from .models import Question, QuizChoice, Target
 from .utils import silent_int
 from .quiz_registry import QuizRegistry
 

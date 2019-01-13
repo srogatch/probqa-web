@@ -1,9 +1,9 @@
 from django.http import HttpRequest
 from ipware import get_client_ip
-from ProbQAInterop.ProbQA import AnsweredQuestion, INVALID_PQA_ID
-from pqawV1.pivot import Pivot
+from ProbQAInterop.ProbQA import INVALID_PQA_ID
+from pqawV1.pivot import pivot_instance
 from .session_helper import SessionKeys
-from .models import Quiz, QuizChoice, Question, QuizTarget
+from .models import Quiz, Question, QuizTarget
 from .exceptions import PqawInternalError
 from django.db.models.signals import pre_delete
 from django.contrib.sessions.models import Session
@@ -70,15 +70,14 @@ class QuizRegistry:
         quiz_set = session.get(SessionKeys.ACTIVE_QUIZZES.value)
         if quiz_set is None:
             return
-        with Pivot.instance.lock_read():
-            engine = Pivot.instance.get_engine()
+        with pivot_instance.lock_shared():
+            engine = pivot_instance.get_engine()
             if not engine:
                 return
             quiz_comp_ids = engine.quiz_comp_from_perm(list(quiz_set))
             for qci in quiz_comp_ids:
                 if qci != INVALID_PQA_ID:
                     engine.release_quiz(qci)
-
 
     @staticmethod
     def attach_session_expiration_handler():

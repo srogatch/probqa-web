@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, Http404
-from .pivot import Pivot
+from .pivot import pivot_instance
 from .quiz_page import QuizPage
 
 
 def index(request: HttpRequest):
-    with Pivot.instance.lock_read() as lr:
-        engine = Pivot.instance.get_engine()
+    with pivot_instance.lock_shared() as lr:
+        engine = pivot_instance.get_engine()
         if not engine:
             lr.early_release()
             return HttpResponse('<h1>Maintenance is in progress.</h1>')

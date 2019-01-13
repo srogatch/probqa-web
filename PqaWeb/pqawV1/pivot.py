@@ -1,5 +1,4 @@
 import os
-import traceback
 from django.conf import settings
 import ProbQAInterop.ProbQA as probqa
 from .models import KnowledgeBase, Quiz
@@ -23,16 +22,15 @@ class EarlyReleaseRWL:
 
 
 class Pivot:
-    instance = None
-
     def __init__(self):
         self.engine = None
         self.main_lock = rwlock.RWLockWrite()
+        self.per_tasks = None
 
-    def lock_read(self) -> EarlyReleaseRWL:
+    def lock_shared(self) -> EarlyReleaseRWL:
         return EarlyReleaseRWL(self.main_lock.gen_rlock())
 
-    def lock_write(self) -> EarlyReleaseRWL:
+    def lock_exclusive(self) -> EarlyReleaseRWL:
         return EarlyReleaseRWL(self.main_lock.gen_wlock())
 
     def set_engine(self, engine: probqa.PqaEngine):
@@ -49,7 +47,7 @@ class Pivot:
         # Take KB name from SQL DB
         latest_kb_path = Pivot.get_latest_kb_path()
         if latest_kb_path:
-            self.engine, err = probqa.PqaEngineFactory.instance.load_cpu_engine(latest_kb_path)
+            self.engine, err = probqa.pqa_engine_factory_instance.load_cpu_engine(latest_kb_path)
             if err:
                 print('The engine is loaded nevertheless an error:', err.to_string(True))
             dims = self.engine.copy_dims()
@@ -74,6 +72,9 @@ class Pivot:
             return None
         return os.path.join(settings.KB_ROOT, latest_kb.path)
 
+    def init_periodic_tasks(self):
+        from .periodic_tasks import PeriodicTasks
+        self.per_tasks = PeriodicTasks()
 
-Pivot.instance = Pivot()
 
+pivot_instance = Pivot()

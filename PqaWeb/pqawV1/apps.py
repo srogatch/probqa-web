@@ -16,9 +16,11 @@ class Pqawv1Config(AppConfig):
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
 
-        from .pivot import Pivot
-        Pivot.instance.reset_engine()
+        from pqawV1.pivot import pivot_instance
+        pivot_instance.reset_engine()
+        pivot_instance.init_periodic_tasks()
 
+        # Actually this doesn't work: sessions are never deleted from the DB by Django automatically.
         from .quiz_registry import QuizRegistry
         QuizRegistry.attach_session_expiration_handler()
 

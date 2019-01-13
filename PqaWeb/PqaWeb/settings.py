@@ -142,3 +142,9 @@ PQA_MIN_QUESTIONS = 1
 # Backup
 ARCHIVE_DIRECTORY = 'E:/Backup/ProbQA/WebSite/'
 ARCHIVE_FORMAT = 'bz2'  # The options are 'gz' and 'bz2'
+
+# Configuration of periodic tasks and quiz cache
+CLEAR_OLD_QUIZZES_CHECK_PERIOD_SEC = 60  # check each minute
+CLEAR_QUIZZES_AGE_SEC = 60 * 20  # clear cache if older than 20 minutes
+CLEAR_QUIZZES_IF_COUNT_EXCEEDS = 7777  # About 1GB of RAM for 10 000 targets
+SAVE_ENGINE_PERIOD_SEC = 60 * 30  # Save engine each 30 minutes

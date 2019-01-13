@@ -2,7 +2,6 @@ import datetime
 import os
 import traceback
 from threading import Thread
-from tarfile import TarInfo
 
 from typing import Union, List
 from django.db.models import QuerySet
@@ -11,8 +10,8 @@ from django.db import transaction
 
 from ThirdParty.DjangoArchive.backupper import Backupper
 
-from ProbQAInterop.ProbQA import PqaEngineFactory, EngineDefinition, AddQuestionParam, AddTargetParam
-from .pivot import Pivot
+from ProbQAInterop.ProbQA import EngineDefinition, AddQuestionParam, AddTargetParam, pqa_engine_factory_instance
+from pqawV1.pivot import pivot_instance
 from .models import *
 
 
@@ -66,7 +65,7 @@ class AdminActions:
                     % (settings.PQA_MIN_TARGETS, n_targets))
 
             ed = EngineDefinition(settings.PQA_N_ANSWERS, n_questions, n_targets)
-            self.engine, err = PqaEngineFactory.instance.create_cpu_engine(ed)
+            self.engine, err = pqa_engine_factory_instance.create_cpu_engine(ed)
             if err:
                 print('An engine is created nevertheless an error:', str(err))
             perm_question_ids = self.engine.question_perm_from_comp(list(range(n_questions)))
@@ -92,7 +91,7 @@ class AdminActions:
                 t.save()
             self.engine.save_kb(self.goal_kb_path, False)
             KnowledgeBase(path=self.new_kb_file_name).save()
-        Pivot.instance.set_engine(self.engine)
+        pivot_instance.set_engine(self.engine)
         self.res_msg = 'A new engine has been created'
 
     def use_existing_engine(self):
@@ -156,16 +155,16 @@ class AdminActions:
             self.engine.shutdown(self.goal_kb_path + '.broken')  # This engine is broken
             try:
                 # If the below raises, then we are left with an engine that is shut down
-                self.engine, err = PqaEngineFactory.instance.load_cpu_engine(self.goal_kb_path + '.before')
+                self.engine, err = pqa_engine_factory_instance.load_cpu_engine(self.goal_kb_path + '.before')
                 if err:
                     print('Backup engine is loaded nevertheless an error:', str(err))
-                Pivot.instance.set_engine(self.engine)
+                pivot_instance.set_engine(self.engine)
             except:
                 exc_chain = traceback.format_exc() + '\n when handling \n' + exc_chain
                 # Restore to even older version of the engine - which is referenced by the DB
                 try:
-                    Pivot.instance.reset_engine()
-                    self.engine = Pivot.instance.get_engine()
+                    pivot_instance.reset_engine()
+                    self.engine = pivot_instance.get_engine()
                 except:
                     exc_chain = traceback.format_exc() + '\n when handling \n' + exc_chain
                     raise SksException('Failed even to reset engine: \n\n' + exc_chain)
@@ -175,14 +174,14 @@ class AdminActions:
 
     def sync_sql_kb(self):
         try:
-            with Pivot.instance.lock_write():
-                self.engine = Pivot.instance.get_engine()
+            with pivot_instance.lock_exclusive():
+                self.engine = pivot_instance.get_engine()
                 if self.engine:
                     self.use_existing_engine()
                     return
                 # Load engine referenced by the KB
-                if Pivot.instance.reset_engine():
-                    self.engine = Pivot.instance.get_engine()
+                if pivot_instance.reset_engine():
+                    self.engine = pivot_instance.get_engine()
                     self.use_existing_engine()
                     return
                 self.maybe_create_engine()
@@ -190,8 +189,8 @@ class AdminActions:
             self.res_msg = traceback.format_exc()
 
     def save_engine(self) -> bool:
-        with Pivot.instance.lock_read():
-            self.engine = Pivot.instance.get_engine()
+        with pivot_instance.lock_shared():
+            self.engine = pivot_instance.get_engine()
             if not self.engine:
                 return False
             self.engine.save_kb(self.goal_kb_path, False)
@@ -208,8 +207,8 @@ class AdminActions:
     def async_backup_all(self):
         bu = Backupper(self.timestamp_file_name)
         with bu.create_archive() as tar:
-            with Pivot.instance.lock_read():
-                latest_kb_path = Pivot.instance.get_latest_kb_path()
+            with pivot_instance.lock_shared():
+                latest_kb_path = pivot_instance.get_latest_kb_path()
                 bu.dump_sql_db(tar)
                 bu.dump_media(tar)
             # Add the engine to the archive
@@ -222,7 +221,7 @@ class AdminActions:
 
     def start_backup_all(self):
         engine_saved = self.save_engine()
-        t = Thread(target=self.async_backup_all, name='Backupper thread')
+        t = Thread(target=self.async_backup_all, name='Backupper')
         t.start()
         self.res_msg = AdminActions.format_engine_save_status(engine_saved)
         self.res_msg += (' A backup of SQL DB and media files, as well as archiving of the engine, have been launched'
