@@ -11,7 +11,7 @@ from .quiz_registry import QuizRegistry
 
 
 class TargetView:
-    def __init__(self, link: str, title: str, perm_id: int, probability: float):
+    def __init__(self, link: str, title: str, perm_id: int, probability: str):
         self.link = link
         self.title = title
         self.perm_id = perm_id
@@ -59,7 +59,7 @@ class QuizPage:
         dbt_refs = {dbt.pqa_id: dbt for dbt in db_targets}
         self.context['targets'] = [
             TargetView(dbt_refs[target_perm_id].link, dbt_refs[target_perm_id].title, target_perm_id,
-                       rated_target.prob * 100)
+                       '{0:.6f}'.format(rated_target.prob * 100))
             for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
 
     # Returns the compact ID for the next question

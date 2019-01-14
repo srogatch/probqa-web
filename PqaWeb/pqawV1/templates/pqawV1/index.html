@@ -1,5 +1,6 @@
 {% load i18n static %}
 <link rel="stylesheet" type="text/css" href="{% static 'pqawV1/style.css' %}"/>
+<title>{% trans 'Find Next Game' %}</title>
 <script type="text/javascript">
     function startNewQuz() {
         document.getElementsByName('sel_action')[0].value = 'StartNewQuiz';
@@ -19,7 +20,7 @@
         return true;
     }
 </script>
-<h1>{% trans 'Find the next game to play' %}</h1>
+<div class="h1-font-size">{% trans 'Your next game to play' %}</div>
 <form method="POST" action="{% url 'pqawV1:index' %}" id="quiz_form">
     {% csrf_token %}
     <input type="hidden" name="sel_action"/>
@@ -29,42 +30,45 @@
     <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
 
     <div id="new_quiz_request">
-        <a href="javascript:{}" onclick="return startNewQuz()">{% trans 'Start new quiz' %}</a>
+        <a href="javascript:{}" onclick="return startNewQuz()" class="action-font-size">{% trans 'Start new quiz' %}</a>
     </div>
+    <hr/>
     <div id="cur_question">
         {% if question %}
-            <h2>{{ question.message }}</h2>
+            <div class="guideline-font-size">{{ question.message }}</div>
             <ul>
                 {% for answer in answers %}
                     <li>
-                        <a href="javascript:{}" onclick="return recordAnswer({{ answer.option_pos }})">
+                        <a href="javascript:{}" onclick="return recordAnswer({{ answer.option_pos }})"
+                            class="action-font-size">
                             {{ answer.message }}
                         </a>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>{% trans 'We have no more questions to ask.' %}</p>
+            <div class="guideline-font-size">{% trans 'We have no more questions to ask.' %}</div>
         {% endif %}
     </div>
     <div id="top_targets">
-        <p>{% trans 'Most probably you are looking for:' %}</p>
+        <div class="guideline-font-size">{% trans 'Most probably you are looking for:' %}</div>
         <table id="top_targets_tbl">
             <thead>
                 <tr>
-                    <th>{% trans 'Game' %}&nbsp;</th>
-                    <th>&nbsp;{% trans 'Prob.%' %}</th>
+                    <th class="action-font-size">{% trans 'Game' %}&nbsp;</th>
+                    <th class="action-font-size">&nbsp;{% trans 'Prob.%' %}</th>
                 </tr>
             </thead>
             {% for target in targets %}
             <tr>
                 <td>
-                    <a href="{{ target.link }}" target="_blank" onclick="return recordTarget({{ target.perm_id }})">
+                    <a href="{{ target.link }}" target="_blank" onclick="return recordTarget({{ target.perm_id }})"
+                        class="action-font-size">
                         {{ target.title }}
                     </a>
                     &nbsp;
                 </td>
-                <td>
+                <td class="action-font-size">
                     &nbsp;
                     {# Must be a formatted string #}
                     {{ target.probability }}
@@ -74,3 +78,21 @@
         </table>
     </div>
 </form>
+{# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
+<div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
+<script type='text/javascript'>
+  var devicePixelRatio = window.devicePixelRatio || 1;
+  dpi_x = document.getElementById('testdiv').offsetWidth * devicePixelRatio;
+  dpi_y = document.getElementById('testdiv').offsetHeight * devicePixelRatio;
+
+  function setFontSizeForClass(className, fontSize) {
+      var elms = document.getElementsByClassName(className);
+      for(var i=0; i<elms.length; i++) {
+          elms[i].style.fontSize = String(fontSize * dpi_y / 96) + "px";
+      }
+  }
+
+  setFontSizeForClass('h1-font-size', 30);
+  setFontSizeForClass('action-font-size', 20);
+  setFontSizeForClass('guideline-font-size', 25);
+</script>
