@@ -50,6 +50,9 @@ class QuizPage:
         self.context['question'] = question
         if question:
             self.context['answers'] = question.answer_set.order_by('option_pos')
+            self.context['cur_question_id'] = question.pqa_id
+        else:
+            self.context['cur_question_id'] = INVALID_PQA_ID
         top_targets = self.engine.list_top_targets(self.quiz_comp_id, settings.PQA_TOP_TARGETS)
         i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in top_targets])
         db_targets = Target.objects.filter(pqa_id__in=i_perm_targets)
@@ -153,10 +156,13 @@ class QuizPage:
                 else:
                     i_perm_active_question = self.engine.question_perm_from_comp([i_comp_active_question])[0]
                     assert self.quiz.active_question.pqa_id == i_perm_active_question
-                    self.engine.record_answer(self.quiz_comp_id, option_pos)
-                    self.quiz.quizchoice_set.add(QuizChoice(question_pqa_id=self.quiz.active_question.pqa_id,
-                                                            i_answer=option_pos), bulk=False)
-                    self.next_question_update_quiz()
+                    page_active_question = silent_int(self.request.POST.get('cur_question_id'))
+                    # It may be unequal if user presses "Refresh" on the page and resubmits the form.
+                    if page_active_question == i_perm_active_question:
+                        self.engine.record_answer(self.quiz_comp_id, option_pos)
+                        self.quiz.quizchoice_set.add(QuizChoice(question_pqa_id=self.quiz.active_question.pqa_id,
+                                                                i_answer=option_pos), bulk=False)
+                        self.next_question_update_quiz()
             elif sel_action == 'RecordTarget':
                 i_perm_target = silent_int(sel_param0)
                 if i_perm_target is not None:
