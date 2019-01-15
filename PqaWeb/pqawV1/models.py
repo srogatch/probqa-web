@@ -58,6 +58,7 @@ class Quiz(models.Model):
     # https://github.com/un33k/django-ipware
     # https://stackoverflow.com/a/16203978/1915854
     user_ip = models.CharField(max_length=255, null=True, blank=True)
+    username = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
 
 

@@ -21,7 +21,9 @@
     function recordTarget(targetId, openUrl) {
         document.getElementsByName('sel_action')[0].value = 'RecordTarget';
         document.getElementsByName('sel_param0')[0].value = String(targetId);
-        window.open(openUrl, '_blank');
+        {% if not is_teacher %}
+            window.open(openUrl, '_blank');
+        {% endif %}
         document.getElementById('quiz_form').submit();
         return true;
     }
@@ -39,7 +41,7 @@
     <input type="hidden" name="cur_quiz_id" value="{{ cur_quiz_id }}"/>
     <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
 
-    <div id="new_quiz_request">
+    <div id="head_actions">
         <a href="javascript:{}" onclick="return startNewQuz()" class="action-font-size">
             {% trans 'Start new quiz' %}
         </a>
@@ -91,6 +93,13 @@
             {% endfor %}
         </table>
     </div>
+    {% if is_teacher %}
+        <hr/><br/>
+        <div id="teacher_actions">
+            <input type="text" name="teaching_target_filter" class="action-font-size" />
+            <input type="submit" class="action-font-size" value="{% trans 'Filter targets' %}" />
+        </div>
+    {% endif %}
 </form>
 {# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
 <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>

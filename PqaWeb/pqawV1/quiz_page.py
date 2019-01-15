@@ -27,6 +27,8 @@ class QuizPage:
         self.quiz_reg = QuizRegistry(request)
         self.quiz = None
         self.quiz_comp_id = None  # Compact ID
+        # https://bradmontgomery.net/blog/restricting-access-by-group-in-django/
+        self.is_teacher = (request.user.groups.filter(name='Teaching').count() > 0)
 
     def start_new_quiz(self):
         self.quiz_comp_id = self.engine.start_quiz()
@@ -35,6 +37,9 @@ class QuizPage:
         i_perm_question = self.engine.question_perm_from_comp([i_comp_question])[0]
         self.quiz = self.quiz_reg.add_active_quiz(quiz_perm_id, i_perm_question)
         self.fill_context()
+
+    def format_probability(self, prob: float) -> str:
+        return '{0:.6f}'.format(prob * 100)
 
     def fill_context(self):
         assert self.quiz_comp_id is not None
@@ -54,17 +59,30 @@ class QuizPage:
             self.context['cur_question_id'] = question.pqa_id
         else:
             self.context['cur_question_id'] = INVALID_PQA_ID
-        top_targets = self.engine.list_top_targets(self.quiz_comp_id, settings.PQA_TOP_TARGETS)
-        i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in top_targets])
-        db_targets = Target.objects.filter(pqa_id__in=i_perm_targets)
-        dbt_refs = {dbt.pqa_id: dbt for dbt in db_targets}
-        # TODO: we are in trouble if the link contains " or ' characters.
-        self.context['targets'] = [
-            TargetView(dbt_refs[target_perm_id].link,
-                       dbt_refs[target_perm_id].title,
-                       target_perm_id,
-                       '{0:.6f}'.format(rated_target.prob * 100))
-            for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
+
+        self.context['is_teacher'] = self.is_teacher
+
+        teaching_target_filter = self.request.POST.get('teaching_target_filter')
+        if self.is_teacher and teaching_target_filter:
+            dims = self.engine.copy_dims()
+            all_targets = self.engine.list_top_targets(self.quiz_comp_id, dims.n_targets)
+            i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in all_targets])
+            permid2prob = {perm_id: tt.prob for perm_id, tt in zip(i_perm_targets, all_targets)}
+            db_targets = Target.objects.filter(title__icontains=teaching_target_filter)
+            self.context['targets'] = [
+                TargetView(dbt.link, dbt.title, dbt.pqa_id, self.format_probability(permid2prob[dbt.pqa_id]))
+                for dbt in db_targets]
+        else:
+            top_targets = self.engine.list_top_targets(self.quiz_comp_id, settings.PQA_TOP_TARGETS)
+            i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in top_targets])
+            db_targets = Target.objects.filter(pqa_id__in=i_perm_targets)
+            dbt_refs = {dbt.pqa_id: dbt for dbt in db_targets}
+            self.context['targets'] = [
+                TargetView(dbt_refs[target_perm_id].link,
+                           dbt_refs[target_perm_id].title,
+                           target_perm_id,
+                           self.format_probability(rated_target.prob))
+                for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
 
     # Returns the compact ID for the next question
     def next_question_update_quiz(self) -> int:
@@ -176,6 +194,8 @@ class QuizPage:
                         self.quiz = self.quiz_reg.get_quiz(quiz_perm_id)
                         self.quiz_reg.update_quiz_targets(self.quiz, i_perm_target)
                 # Note that self.quiz may be None here, so fill_context() should check for this case
+            elif self.is_teacher: # Can click 'Submit' button
+                pass
             else:
                 raise Http404('Unsupported here action: [%s(%s)]' % (sel_action, sel_param0))
             self.fill_context()

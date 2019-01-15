@@ -22,7 +22,8 @@ class QuizRegistry:
     def add_active_quiz(self, quiz_perm_id: int, active_question_perm_id: int) -> Quiz:
         user_ip, ip_routable = get_client_ip(self.request)
         active_question = Question.objects.get(pqa_id=active_question_perm_id)
-        quiz = Quiz(pqa_id=quiz_perm_id, user_ip=user_ip, active_question=active_question)
+        quiz = Quiz(pqa_id=quiz_perm_id, user_ip=user_ip, active_question=active_question,
+                    username=self.request.user.username)
         quiz.save()  # Must throw if pqa_id is not unique in the DB
         quiz_set = self.request.session.get(SessionKeys.ACTIVE_QUIZZES.value)
         if quiz_set:
