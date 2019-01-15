@@ -1,4 +1,5 @@
 import traceback
+from urllib.parse import urlencode
 
 from django.http import HttpRequest, Http404
 from django.conf import settings
@@ -57,8 +58,11 @@ class QuizPage:
         i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in top_targets])
         db_targets = Target.objects.filter(pqa_id__in=i_perm_targets)
         dbt_refs = {dbt.pqa_id: dbt for dbt in db_targets}
+        # TODO: we are in trouble if the link contains " or ' characters.
         self.context['targets'] = [
-            TargetView(dbt_refs[target_perm_id].link, dbt_refs[target_perm_id].title, target_perm_id,
+            TargetView(dbt_refs[target_perm_id].link,
+                       dbt_refs[target_perm_id].title,
+                       target_perm_id,
                        '{0:.6f}'.format(rated_target.prob * 100))
             for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
 

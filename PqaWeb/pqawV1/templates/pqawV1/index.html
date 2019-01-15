@@ -13,9 +13,10 @@
         document.getElementById('quiz_form').submit();
         return false;
     }
-    function recordTarget(targetId) {
+    function recordTarget(targetId, openUrl) {
         document.getElementsByName('sel_action')[0].value = 'RecordTarget';
         document.getElementsByName('sel_param0')[0].value = String(targetId);
+        window.open(openUrl, '_blank');
         document.getElementById('quiz_form').submit();
         return true;
     }
@@ -62,7 +63,8 @@
             {% for target in targets %}
             <tr>
                 <td>
-                    <a href="{{ target.link }}" target="_blank" onclick="return recordTarget({{ target.perm_id }})"
+                    <a href="javascript:{}"
+                       onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
                         class="action-font-size">
                         {{ target.title }}
                     </a>
