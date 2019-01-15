@@ -21,7 +21,12 @@
     function recordTarget(targetId, openUrl) {
         document.getElementsByName('sel_action')[0].value = 'RecordTarget';
         document.getElementsByName('sel_param0')[0].value = String(targetId);
-        {% if not is_teacher %}
+        {% if is_teacher %}
+            var r = confirm("Record target? " + openUrl);
+            if(r != true) {
+                return false;
+            }
+        {% else %}
             window.open(openUrl, '_blank');
         {% endif %}
         document.getElementById('quiz_form').submit();
