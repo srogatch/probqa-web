@@ -1,0 +1,31 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<title>{% trans 'Teaching the Probabilistic Question Asking system' %}</title>
+<link rel="stylesheet" type="text/css" href="{% static 'pqawV1/teaching.css' %}"/>
+
+</head>
+<body>
+
+{# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
+<div id='dpi_detector' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
+<script type='text/javascript'>
+  var devicePixelRatio = window.devicePixelRatio || 1;
+  dpi_x = document.getElementById('dpi_detector').offsetWidth * devicePixelRatio;
+  dpi_y = document.getElementById('dpi_detector').offsetHeight * devicePixelRatio;
+
+  function setFontSizeForClass(className, fontSize) {
+      var elms = document.getElementsByClassName(className);
+      for(var i=0; i<elms.length; i++) {
+          elms[i].style.fontSize = String(fontSize * dpi_y / 96) + "px";
+      }
+  }
+</script>
+
+{% block main_content %}{% endblock main_content %}
+
+</body>
+</html>
