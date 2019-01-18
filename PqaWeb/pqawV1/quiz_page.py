@@ -46,8 +46,11 @@ class QuizPage:
         if self.quiz is None:
             # Save a DB hit by not fetching the quiz
             i_comp_next_question = self.engine.get_active_question_id(self.quiz_comp_id)
-            i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
-            question = get_object_or_404(Question, pqa_id=i_perm_next_question)
+            if i_comp_next_question != INVALID_PQA_ID:
+                i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
+                question = get_object_or_404(Question, pqa_id=i_perm_next_question)
+            else:
+                question = None
             self.context['cur_quiz_id'] = self.engine.quiz_perm_from_comp([self.quiz_comp_id])[0]
         else:
             #TODO: verify the code below in debugger
@@ -68,6 +71,7 @@ class QuizPage:
             all_targets = self.engine.list_top_targets(self.quiz_comp_id, dims.n_targets)
             i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in all_targets])
             permid2prob = {perm_id: tt.prob for perm_id, tt in zip(i_perm_targets, all_targets)}
+            # This still performs a case-sensitive search in MySQL
             db_targets = Target.objects.filter(title__icontains=teaching_target_filter)
             self.context['targets'] = [
                 TargetView(dbt.link, dbt.title, dbt.pqa_id, self.format_probability(permid2prob[dbt.pqa_id]))

@@ -18,10 +18,10 @@ class Target(models.Model):
 
     def __str__(self):
         print(self.image.name)
-        return 'Title=[%s], Link=[%s], ImageMD5=[%s], Descr=[%s], Created=[%s], Modified=[%s]' % (
+        return 'Title=[%s], Link=[%s], ImageMD5=[%s], Created=[%s], Modified=[%s]' % (
             self.title, self.link,
             hashlib.md5(Path(self.image.storage.path(self.image.name)).read_bytes()).hexdigest(),
-            self.description, str(self.created), str(self.modified))
+            str(self.created), str(self.modified))
 
 
 class Question(models.Model):

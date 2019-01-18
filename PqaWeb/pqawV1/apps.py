@@ -10,6 +10,10 @@ class Pqawv1Config(AppConfig):
 
     # https://stackoverflow.com/questions/6791911/execute-code-when-django-starts-once-only
     def ready(self):
+        if os.environ.get('RUN_MAIN') != 'true':
+            print('Exiting because detected running in reloader.')
+            return
+
         print('Starting up for PID=%s...' % (os.getpid(),))
         # input('Attach the debugger and press ENTER')
 

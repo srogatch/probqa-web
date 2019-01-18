@@ -20,7 +20,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 
 class TargetAdmin(admin.ModelAdmin):
-    list_display = ('title', 'retain', 'pqa_id', 'link', 'image', 'description', 'created', 'modified')
+    list_display = ('title', 'retain', 'pqa_id', 'link', 'image', 'created', 'modified')
     list_filter = ('pqa_id', 'created', 'modified')
     search_fields = ['pqa_id', 'title', 'link', 'image', 'description']
     readonly_fields = ('pqa_id',)
