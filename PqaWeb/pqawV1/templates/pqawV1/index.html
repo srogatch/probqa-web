@@ -81,7 +81,7 @@
                 </tr>
             </thead>
             {% for target in targets %}
-            <tr>
+            <tr bgcolor ="{% cycle '#E1FFDB' '#B7FFFE' %}">
                 <td>
                     <a href="javascript:{}"
                        onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
