@@ -1,3 +1,6 @@
-__pycache__
-.idea
+\__pycache__\
+\.idea\
 RunPqaWeb.bat
+.pdb
+\migrations\
+\static\

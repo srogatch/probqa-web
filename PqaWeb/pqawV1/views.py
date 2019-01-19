@@ -13,3 +13,7 @@ def index(request: HttpRequest):
         qp = QuizPage(request, engine)
         qp.compute()
     return render(request, 'pqawV1/index.html', qp.context)
+
+
+def google_site_verification(request: HttpRequest):
+    return HttpResponse('google-site-verification: google139b7e8eec9d86dd.html', content_type="text/plain")
