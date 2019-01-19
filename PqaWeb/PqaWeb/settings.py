@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+IS_PRODUCTION = not (len(sys.argv) > 1 and sys.argv[1] == 'runserver')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -24,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = Path(os.path.join(BASE_DIR, '../../secret/django_key.txt')).read_text()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = not IS_PRODUCTION
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.100.103', '82.209.232.105', 'probqa.com']
 
