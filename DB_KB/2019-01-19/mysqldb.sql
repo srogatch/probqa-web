@@ -1,5 +1,3 @@
-CREATE DATABASE  IF NOT EXISTS `probqa_prod` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
-USE `probqa_prod`;
 -- MySQL dump 10.13  Distrib 8.0.13, for Win64 (x86_64)
 --
 -- Host: localhost    Database: probqa_prod
