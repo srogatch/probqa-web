@@ -1,17 +1,18 @@
 from django.contrib import admin
 
 from .models import Question, Target, Answer
+from django.conf import settings
 
 
 class AnswerInline(admin.TabularInline):
     model = Answer
-    extra = 5  # TODO: instead, put here the number of answer options in the engine
+    extra = settings.PQA_N_ANSWERS
 
 
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInline]
     list_display = ('message', 'retain', 'pqa_id', 'created', 'modified')
-    list_filter = ['pqa_id', 'created', 'modified']
+    list_filter = ['created', 'modified']
     search_fields = ['pqa_id', 'message']
     readonly_fields = ('pqa_id',)
 
@@ -21,7 +22,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 class TargetAdmin(admin.ModelAdmin):
     list_display = ('title', 'retain', 'pqa_id', 'link', 'image', 'created', 'modified')
-    list_filter = ('pqa_id', 'created', 'modified')
+    list_filter = ('created', 'modified')
     search_fields = ['pqa_id', 'title', 'link', 'image', 'description']
     readonly_fields = ('pqa_id',)
 

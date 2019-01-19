@@ -5,7 +5,7 @@ from pathlib import Path
 
 class Target(models.Model):
     id = models.BigAutoField(primary_key=True)
-    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, null=True, blank=True)
+    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, null=True, blank=True, db_index=True)
     retain = models.BooleanField(default=True)
     title = models.CharField(max_length=255)
     link = models.TextField(max_length=65535)
@@ -26,7 +26,7 @@ class Target(models.Model):
 
 class Question(models.Model):
     id = models.BigAutoField(primary_key=True)
-    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, null=True, blank=True)
+    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, null=True, blank=True, db_index=True)
     retain = models.BooleanField(default=True)
     message = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
@@ -53,7 +53,7 @@ class Answer(models.Model):
 
 class Quiz(models.Model):
     id = models.BigAutoField(primary_key=True)
-    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True)
+    pqa_id = models.BigIntegerField('Permanent ID in engine', unique=True, db_index=True)
     active_question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True, blank=True)
     # https://github.com/un33k/django-ipware
     # https://stackoverflow.com/a/16203978/1915854
@@ -80,7 +80,7 @@ class QuizTarget(models.Model):
 class KnowledgeBase(models.Model):
     id = models.BigAutoField(primary_key=True)
     path = models.CharField(max_length=255)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
 
     def __str__(self):
         return 'path=[%s], timestamp=[%s]' % (self.path, str(self.timestamp))

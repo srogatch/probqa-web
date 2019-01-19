@@ -85,7 +85,7 @@
                 <td>
                     <a href="javascript:{}"
                        onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
-                        class="action-font-size">
+                        class="action-font-size" title="{{ target.description }}">
                         {{ target.title }}
                     </a>
                     &nbsp;
@@ -107,6 +107,8 @@
         </div>
     {% endif %}
 </form>
+<hr>
+Powered by <a href="https://github.com/srogatch/ProbQA">Probabilistic Question Asking system</a>
 {# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
 <div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
 <script type='text/javascript'>
