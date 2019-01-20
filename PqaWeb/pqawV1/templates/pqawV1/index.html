@@ -4,7 +4,9 @@
 <head>
 
 <meta charset="UTF-8">
-<link rel="stylesheet" type="text/css" href="{% static 'pqawV1/style.css' %}"/>
+{% comment %} Reduce site load time
+    <link rel="stylesheet" type="text/css" href="{% static 'pqawV1/style.css' %}"/>
+{% endcomment %}
 <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
 <title>{% trans 'Find Next Game' %}</title>
 <script type="text/javascript">
