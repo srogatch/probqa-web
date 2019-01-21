@@ -73,7 +73,7 @@ class QuizPage:
             i_perm_targets = self.engine.target_perm_from_comp([tt.i_target for tt in all_targets])
             permid2prob = {perm_id: tt.prob for perm_id, tt in zip(i_perm_targets, all_targets)}
             # This still performs a case-sensitive search in MySQL
-            db_targets = Target.objects.filter(title__icontains=teaching_target_filter)
+            db_targets = Target.objects.filter(title__icontains=teaching_target_filter).filter(pqa_id__isnull=False)
             self.context['targets'] = [
                 TargetView(dbt.link,
                            dbt.title,

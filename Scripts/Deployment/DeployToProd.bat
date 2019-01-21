@@ -1,4 +1,5 @@
 call workon PqaWeb1
+@REM TODO: build ProbQA engine and copy the Release versions of its DLLs
 python ..\..\PqaWeb\manage.py collectstatic --noinput
 @REM we clean the static directory first
 DEL /F /S /Q D:\Servers\Web\Django\probqa.com-site\Data\StaticRoot
