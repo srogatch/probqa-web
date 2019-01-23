@@ -1,12 +1,10 @@
-{% load i18n static %}
+{% load i18n static staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
-
-<meta charset="UTF-8">
-<title>{% trans 'Teaching the Probabilistic Question Asking system' %}</title>
-<link rel="stylesheet" type="text/css" href="{% static 'pqawV1/teaching.css' %}"/>
-
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
+    {% block head_content %}{% endblock head_content %}
 </head>
 <body>
 
@@ -26,6 +24,17 @@
 </script>
 
 {% block main_content %}{% endblock main_content %}
+
+<hr>
+{% trans 'Powered by' %}
+<a href="https://github.com/srogatch/ProbQA">{% trans 'Probabilistic Question Asking system' %}</a>
+
+<script type='text/javascript'>
+    setFontSizeForClass('h1-font-size', 30);
+    setFontSizeForClass('action-font-size', 20);
+    setFontSizeForClass('guideline-font-size', 25);
+    setFontSizeForClass('reading-font-size', 18);
+</script>
 
 </body>
 </html>

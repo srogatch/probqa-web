@@ -1,14 +1,9 @@
+{% extends 'pqawV1/visitor_base.html' %}
 {% load i18n static staticfiles %}
-<!DOCTYPE html>
-<html>
-<head>
 
-<meta charset="UTF-8">
-{% comment %} Reduce site load time
-    <link rel="stylesheet" type="text/css" href="{% static 'pqawV1/style.css' %}"/>
-{% endcomment %}
+{% block head_content %}
 <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
-<title>{% trans 'Find Next Game' %}</title>
+<title>{% trans 'ProbQA game recommendation engine' %}</title>
 <script type="text/javascript">
     function startNewQuz() {
         document.getElementsByName('sel_action')[0].value = 'StartNewQuiz';
@@ -36,10 +31,9 @@
         return true;
     }
 </script>
+{% endblock head_content %}
 
-</head>
-<body>
-
+{% block main_content %}
 <div class="h1-font-size">{% trans 'Your next game to play' %}</div>
 <form method="POST" action="{% url 'pqawV1:index' %}" id="quiz_form">
     {% csrf_token %}
@@ -53,6 +47,8 @@
         <a href="javascript:{}" onclick="return startNewQuz()" class="action-font-size">
             {% trans 'Start new quiz' %}
         </a>
+        <span class="action-font-size">&nbsp;&nbsp;</span>
+        <a href="{% url 'pqawV1:about' %}" class="action-font-size">About</a>
     </div>
     <hr/>
     <div id="cur_question">
@@ -90,10 +86,8 @@
                         class="action-font-size" title="{{ target.description }}">
                         {{ target.title }}
                     </a>
-                    &nbsp;
                 </td>
                 <td class="action-font-size">
-                    &nbsp;
                     {# Must be a formatted string #}
                     {{ target.probability }}
                 </td>
@@ -109,26 +103,4 @@
         </div>
     {% endif %}
 </form>
-<hr>
-Powered by <a href="https://github.com/srogatch/ProbQA">Probabilistic Question Asking system</a>
-{# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
-<div id='testdiv' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
-<script type='text/javascript'>
-  var devicePixelRatio = window.devicePixelRatio || 1;
-  dpi_x = document.getElementById('testdiv').offsetWidth * devicePixelRatio;
-  dpi_y = document.getElementById('testdiv').offsetHeight * devicePixelRatio;
-
-  function setFontSizeForClass(className, fontSize) {
-      var elms = document.getElementsByClassName(className);
-      for(var i=0; i<elms.length; i++) {
-          elms[i].style.fontSize = String(fontSize * dpi_y / 96) + "px";
-      }
-  }
-
-  setFontSizeForClass('h1-font-size', 30);
-  setFontSizeForClass('action-font-size', 20);
-  setFontSizeForClass('guideline-font-size', 25);
-</script>
-
-</body>
-</html>
+{% endblock main_content %}

@@ -17,3 +17,7 @@ def index(request: HttpRequest):
 
 def google_site_verification(request: HttpRequest):
     return HttpResponse('google-site-verification: google139b7e8eec9d86dd.html', content_type="text/plain")
+
+
+def about(request: HttpRequest):
+    return render(request, 'pqawV1/about.html')

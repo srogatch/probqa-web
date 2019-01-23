@@ -1,0 +1,22 @@
+{% extends 'pqawV1/visitor_base.html' %}
+{% load i18n static staticfiles %}
+
+{% block head_content %}
+<title>{% trans 'About ProbQA game recommendation engine' %}</title>
+{% endblock head_content %}
+
+{% block main_content %}
+<div class="reading-font-size">
+    This website helps you to select the next game to play. It uses an interactive recommendation engine,
+    called ProbQA. In each step the engine lists the top recommendations for you given your answers to previous
+    questions. The more questions you answer, the better should be the recommendations. However, if you want to
+    try something different, click "Start new quiz". <br/>
+    In contrast to the previous search and recommendation engines, ProbQA can suggest the next game to play for a user
+    even if the user doesn’t have any clear understanding or keywords to search for, cannot define his/her preferences,
+    cannot name similar games, etc.
+</div>
+<div>
+    <a class="action-font-size" href="{% url 'pqawV1:index' %}">{% trans 'Back to quiz' %}</a>
+</div>
+<br/>
+{% endblock %}
