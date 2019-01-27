@@ -3,6 +3,8 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Interactive recommendation engine to find the next game to play">
+    <meta name="keywords" content="gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game">
     <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
     {% block head_content %}{% endblock head_content %}
 </head>
@@ -26,8 +28,15 @@
 {% block main_content %}{% endblock main_content %}
 
 <hr>
-{% trans 'Powered by' %}
-<a href="https://github.com/srogatch/ProbQA">{% trans 'Probabilistic Question Asking system' %}</a>
+<div class="reading-font-size">
+    {% trans 'If you want to ' %}
+    <a href="https://www.surveymonkey.com/r/SMJ2ZRZ">{% trans 'add a game or give feedback' %}</a>
+    {% trans ', please, take that survey.' %}
+</div>
+<div class="reading-font-size">
+    {% trans 'Powered by' %}
+    <a href="https://github.com/srogatch/ProbQA">{% trans 'Probabilistic Question Asking system' %}</a>
+</div>
 
 <script type='text/javascript'>
     setFontSizeForClass('h1-font-size', 30);
