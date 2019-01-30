@@ -210,7 +210,7 @@ class QuizPage:
                 raise Http404('Unsupported here action: [%s(%s)]' % (sel_action, sel_param0))
             self.fill_context()
             return
-        elif self.request.method == 'GET':
+        elif self.request.method == 'GET' or self.request.method == 'HEAD':
             self.start_new_quiz()
             return
         else:

@@ -151,3 +151,9 @@ CLEAR_OLD_QUIZZES_CHECK_PERIOD_SEC = 60  # check each minute
 CLEAR_QUIZZES_AGE_SEC = 60 * 20  # clear cache if older than 20 minutes
 CLEAR_QUIZZES_IF_COUNT_EXCEEDS = 7777  # About 1GB of RAM for 10 000 targets
 SAVE_ENGINE_PERIOD_SEC = 60 * 30  # Save engine each 30 minutes
+
+# Security settings
+# SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_BROWSER_XSS_FILTER = True
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
