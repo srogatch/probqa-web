@@ -22,6 +22,14 @@ class Pqawv1Config(AppConfig):
         # Init SRLogger
         probqa.SRLogger.init(os.path.join(settings.BASE_DIR, '../../logs/PqaWeb'))
 
+        # Generate thumbnails for targets which don't have them
+        from .models import Target
+        from django.db.models import Q
+        from .thumbnails import refresh_thumbnail
+        no_tn_targets = Target.objects.filter(Q(thumbnail__isnull=True) | Q(thumbnail=''))
+        for ntt in no_tn_targets:
+            refresh_thumbnail(ntt)
+
         from pqawV1.pivot import pivot_instance
         pivot_instance.reset_engine()
         pivot_instance.init_periodic_tasks()

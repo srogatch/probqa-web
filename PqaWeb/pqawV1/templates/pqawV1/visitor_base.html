@@ -2,11 +2,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="description" content="Interactive recommendation engine to find the next game to play">
-    <meta name="keywords" content="gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game">
-    <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
-    {% block head_content %}{% endblock head_content %}
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-133713748-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-133713748-1');
+</script>
+
+<meta charset="UTF-8">
+<meta name="description" content="Interactive recommendation engine to find the next game to play">
+<meta name="keywords" content="gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game">
+<link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
+{% block head_content %}{% endblock head_content %}
+
 </head>
 <body>
 

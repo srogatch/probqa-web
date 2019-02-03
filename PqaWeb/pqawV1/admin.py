@@ -3,6 +3,8 @@ from django.contrib import admin
 from .models import Question, Target, Answer
 from django.conf import settings
 
+from .thumbnails import refresh_thumbnail
+
 
 class AnswerInline(admin.TabularInline):
     model = Answer
@@ -24,10 +26,14 @@ class TargetAdmin(admin.ModelAdmin):
     list_display = ('title', 'retain', 'pqa_id', 'link', 'image', 'created', 'modified')
     list_filter = ('created', 'modified')
     search_fields = ['pqa_id', 'title', 'link', 'image', 'description']
-    readonly_fields = ('pqa_id',)
+    readonly_fields = ('pqa_id', 'thumbnail')
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def save_model(self, request, obj: Target, form, change):
+        refresh_thumbnail(obj)
+        super().save_model(request, obj, form, change)
 
 
 admin.site.register(Question, QuestionAdmin)

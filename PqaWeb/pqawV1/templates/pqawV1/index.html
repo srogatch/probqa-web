@@ -68,29 +68,29 @@
     <br/>
     <div id="top_targets" align="center">
         <div class="guideline-font-size">{% trans 'Most probably you want:' %}</div>
-        <table id="top_targets_tbl">
-            <thead>
+        {% for target in targets %}
+        <span style="display: inline-block">
+            <table>
                 <tr>
-                    <th class="action-font-size">{% trans 'Game' %}&nbsp;</th>
-                    <th class="action-font-size">&nbsp;{% trans 'Prob.%' %}</th>
+                    <td class="action-font-size">
+                        <a href="javascript:{}"
+                           onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
+                            title="{{ target.description }}">
+                            {{ target.title }}
+                        </a>
+                        &mdash;
+                        {# Must be a formatted string #}
+                        {{ target.probability }}%
+                    </td>
                 </tr>
-            </thead>
-            {% for target in targets %}
-            <tr bgcolor ="{% cycle '#E1FFDB' '#B7FFFE' %}">
-                <td>
-                    <a href="javascript:{}"
-                       onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
-                        class="action-font-size" title="{{ target.description }}">
-                        {{ target.title }}
-                    </a>
-                </td>
-                <td class="action-font-size">
-                    {# Must be a formatted string #}
-                    {{ target.probability }}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+                <tr>
+                    <td>
+                        <img src="{{ target.thumbnail_url }}"/>
+                    </td>
+                </tr>
+            </table>
+        </span>
+        {% endfor %}
     </div>
     {% if is_teacher %}
         <br/>

@@ -1,5 +1,4 @@
 import traceback
-from urllib.parse import urlencode
 
 from django.http import HttpRequest, Http404
 from django.conf import settings
@@ -12,12 +11,13 @@ from .quiz_registry import QuizRegistry
 
 
 class TargetView:
-    def __init__(self, link: str, title: str, perm_id: int, probability: str, description: str):
+    def __init__(self, link: str, title: str, perm_id: int, probability: str, description: str, thumbnail_url: str):
         self.link = link
         self.title = title
         self.perm_id = perm_id
         self.probability = probability
         self.description = description  # Currently shown as a tooltip
+        self.thumbnail_url = thumbnail_url
 
 
 class QuizPage:
@@ -79,7 +79,8 @@ class QuizPage:
                            dbt.title,
                            dbt.pqa_id,
                            self.format_probability(permid2prob[dbt.pqa_id]),
-                           dbt.description)
+                           dbt.description,
+                           dbt.thumbnail.url)
                 for dbt in db_targets]
         else:
             top_targets = self.engine.list_top_targets(self.quiz_comp_id, settings.PQA_TOP_TARGETS)
@@ -91,7 +92,8 @@ class QuizPage:
                            dbt_refs[target_perm_id].title,
                            target_perm_id,
                            self.format_probability(rated_target.prob),
-                           dbt_refs[target_perm_id].description)
+                           dbt_refs[target_perm_id].description,
+                           dbt_refs[target_perm_id].thumbnail.url)
                 for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]
 
     # Returns the compact ID for the next question

@@ -1,0 +1,14 @@
+https://analytics.google.com/analytics/web/provision/?authuser=0#/a133713748w193600082p189138590/admin/tracking/tracking-code/
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-133713748-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-133713748-1');
+</script>
+
+---------------------------------------------------------------------------------
+

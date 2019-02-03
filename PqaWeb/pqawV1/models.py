@@ -12,12 +12,12 @@ class Target(models.Model):
     # The limit of 255 characters in the path is not because of Windows path length, but because of
     #   MySQL limitation: https://stackoverflow.com/questions/36953538/mysql-column-size-limit 
     image = models.ImageField(max_length=255,upload_to='Uploads/TargetImages/%Y/%m/%d/')
+    thumbnail = models.ImageField(max_length=255,upload_to='Uploads/TargetThumbnails/%Y/%m/%d/', null=True, blank=True)
     description = models.TextField(max_length=65535)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        print(self.image.name)
         return 'Title=[%s], Link=[%s], ImageMD5=[%s], Created=[%s], Modified=[%s]' % (
             self.title, self.link,
             hashlib.md5(Path(self.image.storage.path(self.image.name)).read_bytes()).hexdigest(),
