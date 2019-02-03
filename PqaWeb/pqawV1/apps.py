@@ -1,4 +1,5 @@
 import os
+import sys
 from django.apps import AppConfig
 from django.conf import settings
 import ProbQAInterop.ProbQA as probqa
@@ -16,7 +17,7 @@ class Pqawv1Config(AppConfig):
             print('Exiting because detected running in reloader.')
             return
 
-        print('Starting up for PID=%s...' % (os.getpid(),))
+        print('Starting up for PID=%s, argv=%s...' % (os.getpid(), sys.argv))
         # input('Attach the debugger and press ENTER')
 
         # Init SRLogger

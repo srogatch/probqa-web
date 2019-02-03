@@ -2,5 +2,4 @@
 \.idea\
 RunPqaWeb.bat
 .pdb
-\migrations\
 \static\

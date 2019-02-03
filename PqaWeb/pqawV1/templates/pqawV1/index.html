@@ -70,7 +70,7 @@
         <div class="guideline-font-size">{% trans 'Most probably you want:' %}</div>
         <br/>
         {% for target in targets %}
-        <span style="display: inline-block">
+        <span style="display: inline-block; vertical-align: middle">
             <div class="action-font-size">
                 <a href="javascript:{}"
                    onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
