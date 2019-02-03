@@ -54,12 +54,12 @@
         {% if question %}
             <div class="guideline-font-size">{{ question.message }}</div>
             {% for answer in answers %}
-                <div>
+                <span class="action-font-size" style="white-space: nowrap;">
                     <a href="javascript:{}" onclick="return recordAnswer({{ answer.option_pos }})"
-                        class="action-font-size">
-                        {{ answer.message }}
-                    </a>
-                </div>
+                    >{{ answer.message }}</a>
+                &nbsp;
+                </span>
+
             {% endfor %}
         {% else %}
             <div class="guideline-font-size">{% trans 'We have no more questions to ask.' %}</div>
@@ -68,27 +68,21 @@
     <br/>
     <div id="top_targets" align="center">
         <div class="guideline-font-size">{% trans 'Most probably you want:' %}</div>
+        <br/>
         {% for target in targets %}
         <span style="display: inline-block">
-            <table>
-                <tr>
-                    <td class="action-font-size">
-                        <a href="javascript:{}"
-                           onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
-                            title="{{ target.description }}">
-                            {{ target.title }}
-                        </a>
-                        &mdash;
-                        {# Must be a formatted string #}
-                        {{ target.probability }}%
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <img src="{{ target.thumbnail_url }}"/>
-                    </td>
-                </tr>
-            </table>
+            <div class="action-font-size">
+                <a href="javascript:{}"
+                   onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
+                    title="{{ target.description }}">{{ target.title }}</a>
+                &ndash;
+                {# Must be a formatted string #}
+                {{ target.probability }}%
+            </div>
+            <div>
+                <img class="game-screenshot" src="{{ target.thumbnail_url }}"/>
+            </div>
+            <br/>
         </span>
         {% endfor %}
     </div>
@@ -100,4 +94,10 @@
         </div>
     {% endif %}
 </form>
+<script type='text/javascript'>
+    var elms = document.getElementsByClassName("game-screenshot");
+      for(var i=0; i<elms.length; i++) {
+          elms[i].width=String(Math.min(Math.round(640 * dpi_x / 96), document.documentElement.clientWidth));
+      }
+</script>
 {% endblock main_content %}
