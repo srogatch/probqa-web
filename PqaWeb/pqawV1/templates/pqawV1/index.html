@@ -4,15 +4,19 @@
 {% block head_content %}
 <title>{% trans 'ProbQA game recommendation engine' %}</title>
 <script type="text/javascript">
+    function submitMaintainingScrollPos() {
+        document.getElementsByName('scroll_pos')[0].value = String(window.pageYOffset);
+        document.getElementById('quiz_form').submit();
+    }
     function startNewQuz() {
         document.getElementsByName('sel_action')[0].value = 'StartNewQuiz';
-        document.getElementById('quiz_form').submit();
+        submitMaintainingScrollPos();
         return false;
     }
     function recordAnswer(optionPos) {
         document.getElementsByName('sel_action')[0].value = 'RecordAnswer';
         document.getElementsByName('sel_param0')[0].value = String(optionPos);
-        document.getElementById('quiz_form').submit();
+        submitMaintainingScrollPos();
         return false;
     }
     function recordTarget(targetId, openUrl) {
@@ -26,7 +30,7 @@
         {% else %}
             window.open(openUrl, '_blank');
         {% endif %}
-        document.getElementById('quiz_form').submit();
+        submitMaintainingScrollPos();
         return true;
     }
 </script>
@@ -41,6 +45,7 @@
     {# For several quizzes open in several tabs #}
     <input type="hidden" name="cur_quiz_id" value="{{ cur_quiz_id }}"/>
     <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
+    <input type="hidden" name="scroll_pos" value="{{ scroll_pos }}"/>
 
     <div id="head_actions" align="center">
         <a href="javascript:{}" onclick="return startNewQuz()" class="action-font-size">
@@ -96,8 +101,8 @@
 </form>
 <script type='text/javascript'>
     var elms = document.getElementsByClassName("game-screenshot");
-      for(var i=0; i<elms.length; i++) {
-          elms[i].width=String(Math.min(Math.round(640 * dpi_x / 96), document.documentElement.clientWidth));
-      }
+    for(var i=0; i<elms.length; i++) {
+      elms[i].width=String(Math.min(Math.round(640 * dpi_x / 96), document.documentElement.clientWidth));
+    }
 </script>
 {% endblock main_content %}

@@ -65,6 +65,7 @@ class QuizPage:
             self.context['cur_question_id'] = INVALID_PQA_ID
 
         self.context['is_teacher'] = self.is_teacher
+        self.context['scroll_pos'] = self.request.POST.get('scroll_pos', 0)
 
         teaching_target_filter = self.request.POST.get('teaching_target_filter')
         if self.is_teacher and teaching_target_filter:

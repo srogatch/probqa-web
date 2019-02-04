@@ -55,6 +55,12 @@
     setFontSizeForClass('action-font-size', 20);
     setFontSizeForClass('guideline-font-size', 25);
     setFontSizeForClass('reading-font-size', 18);
+
+    // This must be called after all the element size adjustments
+    var scrollPosElms = document.getElementsByName('scroll_pos');
+    if(scrollPosElms.length == 1) {
+        window.scrollTo(0, parseInt(scrollPosElms[0].value));
+    }
 </script>
 
 </body>
