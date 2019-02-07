@@ -27,6 +27,7 @@ class Pqawv1Config(AppConfig):
         from .models import Target
         from django.db.models import Q
         from .thumbnails import refresh_thumbnail
+        # no-thumbnail targets
         no_tn_targets = Target.objects.filter(Q(thumbnail__isnull=True) | Q(thumbnail=''))
         for ntt in no_tn_targets:
             refresh_thumbnail(ntt)

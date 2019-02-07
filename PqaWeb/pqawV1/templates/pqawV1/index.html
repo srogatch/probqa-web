@@ -3,6 +3,29 @@
 
 {% block head_content %}
 <title>{% trans 'ProbQA game recommendation engine' %}</title>
+<style>
+.ul-tiles {
+    font-size: 0;
+    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+.li-tile {
+    display: inline-block;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+}
+.screenshot-container {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    background-image: url("{% static 'pqawV1/FrameCellNoTransparent.gif'%}");
+}
+</style>
 <script type="text/javascript">
     function submitMaintainingScrollPos() {
         document.getElementsByName('scroll_pos')[0].value = String(window.pageYOffset);
@@ -74,22 +97,32 @@
     <div id="top_targets" align="center">
         <div class="guideline-font-size">{% trans 'Most probably you want:' %}</div>
         <br/>
-        {% for target in targets %}
-        <span style="display: inline-block; vertical-align: middle">
-            <div class="action-font-size">
-                <a href="javascript:{}"
-                   onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
-                    title="{{ target.description }}">{{ target.title }}</a>
-                &ndash;
-                {# Must be a formatted string #}
-                {{ target.probability }}%
-            </div>
-            <div>
-                <img class="game-screenshot" src="{{ target.thumbnail_url }}"/>
-            </div>
-            <br/>
-        </span>
-        {% endfor %}
+        <ul class="ul-tiles">
+            {% for target in targets %}
+            <li class="li-tile">
+                <div style="height: 100%; display: flex; flex-flow: column;">
+                    <div class="action-font-size" style="flex: 0 1 auto;">
+                        <a href="javascript:{}"
+                           onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
+                            title="{{ target.description }}">{{ target.title }}</a>
+                        &ndash;
+                        {# Must be a formatted string #}
+                        {{ target.probability }}%
+                    </div>
+                    <div class="screenshot-container">
+                        <img class="game-screenshot" src="{{ target.thumbnail_url }}"/>
+                    </div>
+                    <div style="flex: 0 1 auto;">
+                        <br/>
+                    </div>
+                </div>
+            </li>
+            <li class="li-tile">
+                &nbsp;
+            </li>
+            {% endfor %}
+        </ul>
+
     </div>
     {% if is_teacher %}
         <br/>
