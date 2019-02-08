@@ -94,28 +94,43 @@ body {
 {# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
 <div id='dpi_detector' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
 <script type='text/javascript'>
-  var devicePixelRatio = window.devicePixelRatio || 1;
-  dpi_x = document.getElementById('dpi_detector').offsetWidth * devicePixelRatio;
-  dpi_y = document.getElementById('dpi_detector').offsetHeight * devicePixelRatio;
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    dpi_x = document.getElementById('dpi_detector').offsetWidth * devicePixelRatio;
+    dpi_y = document.getElementById('dpi_detector').offsetHeight * devicePixelRatio;
 
-  function setFontSizeForClass(className, fontSize, setLineHeight=true) {
-      var elms = document.getElementsByClassName(className);
-      var multiplier = dpi_y / 96;
-      if(dpi_y > 96) {
-          multiplier *= 3/4;
-      }
-      for(var i=0; i<elms.length; i++) {
-          var sizes = String(fontSize * multiplier) + "px";
-          elms[i].style.fontSize = sizes;
-          if(setLineHeight) {
-            elms[i].style.lineHeight = sizes;
-          }
-      }
-  }
+    function setFontSizeForClass(className, fontSize, setLineHeight) {
+        if(setLineHeight === undefined) {
+            setLineHeight = true;
+        }
+        var elms = document.getElementsByClassName(className);
+        var multiplier = dpi_y / 96;
+        if(dpi_y > 96) {
+            multiplier *= 3/4;
+        }
+        for(var i=0; i<elms.length; i++) {
+            var sizes = String(fontSize * multiplier) + "px";
+            elms[i].style.fontSize = sizes;
+            if(setLineHeight) {
+                elms[i].style.lineHeight = sizes;
+            }
+        }
+    }
+    // Internet Explorer 6-11
+    isIE = /*@cc_on!@*/false || !!document.documentMode;
+    // Edge 20+
+    isEdge = !isIE && !!window.StyleMedia;
 </script>
 
-<div class="body1">
-<div class="body2">
+<div class="body1" id="divBody1">
+<div class="body2" id="divBody2">
+<script type='text/javascript'>
+    if(isIE || isEdge) {
+        var element = document.getElementById("divBody1");
+        element.classList.remove("body1");
+        element = document.getElementById("divBody2");
+        element.classList.remove("body2");
+    }
+</script>
     {% block main_content %}{% endblock main_content %}
     <br/>
     <div class="reading-font" align="center">
