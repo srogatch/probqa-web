@@ -3,29 +3,44 @@
 
 {% block head_content %}
 <title>{% trans 'About ProbQA game recommendation engine' %}</title>
+<style>
+.go-home-font {
+    font-family: 'SairaExtraCondensed-Regular';
+    font-size: 36px;
+    line-height: 36px;
+    color: #660000;
+    -webkit-text-fill-color: #660000;
+    text-decoration: none;
+}
+.go-home-font:hover {
+    color: red;
+    -webkit-text-fill-color: red;
+}
+</style>
 {% endblock head_content %}
 
 {% block main_content %}
 <div align="center">
-    <div class="reading-font-size" id="aboutTextDiv">
+    <img src="{% static 'pqawV1/SimpleRed.png' %}" alt="Logo" height="73"/>
+    <div class="reading-large-font" id="aboutTextDiv" align="left" style="padding: 10px;">
         This website helps you to select the next game to play. It uses an interactive recommendation engine,
         called ProbQA. In each step the engine lists the top recommendations for you given your answers to previous
         questions. The more questions you answer, the better should be the recommendations. However, if you want to
-        try something different, click "Start new quiz". <br/>
+        try something different, click "Start new quiz". <br/><br/>
         In contrast to the previous search and recommendation engines, ProbQA can suggest the next game to play for a
         user even if the user doesn’t have any clear understanding or keywords to search for, cannot define his/her
-        preferences, cannot name similar games, etc. <br/>
+        preferences, cannot name similar games, etc. <br/><br/>
         Please, note that this program in collaboration with 3rd-party programs collects the information about your
         activity on the website, and uses cookies. So if you don't want your activity to be recorded and shared without
-        limitations, please, close this browser tab or window.
+        limitations, please, close this browser tab or window. <br/><br/>
     </div>
 </div>
-<script type='text/javascript'>
-    document.getElementById("aboutTextDiv").style.maxWidth = String(500 * dpi_x / 96) + "px";
-</script>
-
 <div align="center">
-    <a class="action-font-size" href="{% url 'pqawV1:index' %}">{% trans 'Back to quiz' %}</a>
+    <a class="go-home-font" href="{% url 'pqawV1:index' %}">{% trans 'Back to quiz' %}</a>
 </div>
 <br/>
+<script type='text/javascript'>
+    document.getElementById("aboutTextDiv").style.maxWidth = String(800 * dpi_x / 96) + "px";
+    setFontSizeForClass('go-home-font', 36);
+</script>
 {% endblock %}

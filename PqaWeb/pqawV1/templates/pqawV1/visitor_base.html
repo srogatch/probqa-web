@@ -18,47 +18,73 @@
 <meta name="keywords" content="gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game">
 <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: white;
-    }
-    .body1 {
-        margin: 0;
-        padding: 0;
-        background: radial-gradient(circle at -2px 31px, #660000 65px, white 66px) left top,
-            radial-gradient(circle at right -2px top 31px, #660000 65px, white 66px) right top;
-        background-size: 50% 50%;
-        background-repeat: no-repeat;
-    }
-    .body2 {
-        margin: 0;
-        padding: 0;
-        background: radial-gradient(circle at -2px 31px, white 65px, #660000 66px) left top,
-            radial-gradient(circle at right -2px top 31px, white 65px, #660000 66px) right top;
-        background-size: 50% 50%;
-        background-repeat: no-repeat;
-        -webkit-background-clip: text;
-        background-clip: text;
-    }
-    @font-face {
-        font-family: 'SairaExtraCondensed-Light';
-        src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Light.ttf' %}");
-    }
-    @font-face {
-        font-family: 'SairaExtraCondensed-Thin';
-        src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Thin.ttf' %}");
-    }
-    .h1-font {
-        font-family: 'SairaExtraCondensed-Thin';
-        font-size: 55px;
-        line-height: 55px;
-    }
-    .guideline-font {
-        font-family: 'SairaExtraCondensed-Thin';
-        font-size: 36px;
-        line-height: 36px;
-    }
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: white;
+}
+.body1 {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: radial-gradient(circle at -2px 31px, #660000 65px, white 66px) left top,
+        radial-gradient(circle at right -2px top 31px, #660000 65px, white 66px) right top,
+        radial-gradient(circle at left -2px bottom 31px, #660000 65px, white 66px) left bottom,
+        radial-gradient(circle at right -2px bottom 31px, #660000 65px, white 66px) right bottom;
+    background-size: 50% 50%;
+    background-repeat: no-repeat;
+}
+.body2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: radial-gradient(circle at -2px 31px, white 65px, #660000 66px) left top,
+        radial-gradient(circle at right -2px top 31px, white 65px, #660000 66px) right top,
+        radial-gradient(circle at left -2px bottom 31px, white 65px, #660000 66px) left bottom,
+        radial-gradient(circle at right -2px bottom 31px, white 65px, #660000 66px) right bottom;
+    background-size: 50% 50%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+@font-face {
+    font-family: 'SairaExtraCondensed-Light';
+    src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Light.ttf' %}");
+}
+@font-face {
+    font-family: 'SairaExtraCondensed-Thin';
+    src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Thin.ttf' %}");
+}
+@font-face {
+    font-family: 'SairaExtraCondensed-Regular';
+    src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Regular.ttf' %}")
+}
+.h1-font {
+    font-family: 'SairaExtraCondensed-Thin';
+    font-size: 55px;
+    line-height: 55px;
+}
+.guideline-font {
+    font-family: 'SairaExtraCondensed-Thin';
+    font-size: 36px;
+    line-height: 36px;
+}
+.reading-font {
+    font-family: 'SairaExtraCondensed-Regular';
+    font-size: 25px;
+    line-height: 25px;
+}
+.reading-link {
+    color: #660000;
+    -webkit-text-fill-color: #660000;
+    text-decoration: none;
+}
+.reading-link:hover {
+    color: red;
+    -webkit-text-fill-color: red;
+}
+.reading-large-font {
+    font-family: 'SairaExtraCondensed-Regular';
+    font-size: 30px;
+}
 </style>
 {% block head_content %}{% endblock head_content %}
 
@@ -72,7 +98,7 @@
   dpi_x = document.getElementById('dpi_detector').offsetWidth * devicePixelRatio;
   dpi_y = document.getElementById('dpi_detector').offsetHeight * devicePixelRatio;
 
-  function setFontSizeForClass(className, fontSize) {
+  function setFontSizeForClass(className, fontSize, setLineHeight=true) {
       var elms = document.getElementsByClassName(className);
       var multiplier = dpi_y / 96;
       if(dpi_y > 96) {
@@ -81,7 +107,9 @@
       for(var i=0; i<elms.length; i++) {
           var sizes = String(fontSize * multiplier) + "px";
           elms[i].style.fontSize = sizes;
-          elms[i].style.lineHeight = sizes;
+          if(setLineHeight) {
+            elms[i].style.lineHeight = sizes;
+          }
       }
   }
 </script>
@@ -89,19 +117,21 @@
 <div class="body1">
 <div class="body2">
     {% block main_content %}{% endblock main_content %}
-    <hr>
-    <div class="reading-font-size" align="center">
+    <br/>
+    <div class="reading-font" align="center">
         {% trans 'If you want to ' %}
-        <a href="https://www.surveymonkey.com/r/SMJ2ZRZ">{% trans 'add a game or give feedback' %}</a>
+        <a href="https://www.surveymonkey.com/r/SMJ2ZRZ" class="reading-link">
+            {% trans 'add a game or give feedback' %}</a>
         {% trans ', please, take that survey.' %}
     </div>
-    <div class="reading-font-size" align="center">
+    <div class="reading-font" align="center">
         {% trans 'Powered by' %}
-        <a href="https://github.com/srogatch/ProbQA">{% trans 'Probabilistic Question Asking system' %}</a>
+        <a href="https://github.com/srogatch/ProbQA" class="reading-link">
+            {% trans 'Probabilistic Question Asking system' %}</a>
     </div>
+    <br/>
 </div>
 </div>
-
 <script type='text/javascript'>
     setFontSizeForClass('nav-font', 36);
     setFontSizeForClass('h1-font', 55);
@@ -109,8 +139,9 @@
     setFontSizeForClass('choice-font', 30);
     setFontSizeForClass('game-title-font', 21);
     setFontSizeForClass('game-percentage', 21);
+    setFontSizeForClass('reading-font', 25);
+    setFontSizeForClass('reading-large-font', 30, false);
 
-    setFontSizeForClass('reading-font-size', 18);
 
     // This must be called after all the element size adjustments
     var scrollPosElms = document.getElementsByName('scroll_pos');
@@ -118,6 +149,5 @@
         window.scrollTo(0, parseInt(scrollPosElms[0].value));
     }
 </script>
-
 </body>
 </html>
