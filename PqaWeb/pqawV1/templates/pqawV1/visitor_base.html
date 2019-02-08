@@ -17,6 +17,49 @@
 <meta name="description" content="Interactive recommendation engine to find the next game to play">
 <meta name="keywords" content="gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game">
 <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: white;
+    }
+    .body1 {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle at -2px 31px, #660000 65px, white 66px) left top,
+            radial-gradient(circle at right -2px top 31px, #660000 65px, white 66px) right top;
+        background-size: 50% 50%;
+        background-repeat: no-repeat;
+    }
+    .body2 {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(circle at -2px 31px, white 65px, #660000 66px) left top,
+            radial-gradient(circle at right -2px top 31px, white 65px, #660000 66px) right top;
+        background-size: 50% 50%;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+    @font-face {
+        font-family: 'SairaExtraCondensed-Light';
+        src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Light.ttf' %}");
+    }
+    @font-face {
+        font-family: 'SairaExtraCondensed-Thin';
+        src: url("{% static 'pqawV1/Fonts/SairaExtraCondensed-Thin.ttf' %}");
+    }
+    .h1-font {
+        font-family: 'SairaExtraCondensed-Thin';
+        font-size: 55px;
+        line-height: 55px;
+    }
+    .guideline-font {
+        font-family: 'SairaExtraCondensed-Thin';
+        font-size: 36px;
+        line-height: 36px;
+    }
+</style>
 {% block head_content %}{% endblock head_content %}
 
 </head>
@@ -31,29 +74,42 @@
 
   function setFontSizeForClass(className, fontSize) {
       var elms = document.getElementsByClassName(className);
+      var multiplier = dpi_y / 96;
+      if(dpi_y > 96) {
+          multiplier *= 3/4;
+      }
       for(var i=0; i<elms.length; i++) {
-          elms[i].style.fontSize = String(fontSize * dpi_y / 96) + "px";
+          var sizes = String(fontSize * multiplier) + "px";
+          elms[i].style.fontSize = sizes;
+          elms[i].style.lineHeight = sizes;
       }
   }
 </script>
 
-{% block main_content %}{% endblock main_content %}
-
-<hr>
-<div class="reading-font-size" align="center">
-    {% trans 'If you want to ' %}
-    <a href="https://www.surveymonkey.com/r/SMJ2ZRZ">{% trans 'add a game or give feedback' %}</a>
-    {% trans ', please, take that survey.' %}
+<div class="body1">
+<div class="body2">
+    {% block main_content %}{% endblock main_content %}
+    <hr>
+    <div class="reading-font-size" align="center">
+        {% trans 'If you want to ' %}
+        <a href="https://www.surveymonkey.com/r/SMJ2ZRZ">{% trans 'add a game or give feedback' %}</a>
+        {% trans ', please, take that survey.' %}
+    </div>
+    <div class="reading-font-size" align="center">
+        {% trans 'Powered by' %}
+        <a href="https://github.com/srogatch/ProbQA">{% trans 'Probabilistic Question Asking system' %}</a>
+    </div>
 </div>
-<div class="reading-font-size" align="center">
-    {% trans 'Powered by' %}
-    <a href="https://github.com/srogatch/ProbQA">{% trans 'Probabilistic Question Asking system' %}</a>
 </div>
 
 <script type='text/javascript'>
-    setFontSizeForClass('h1-font-size', 30);
-    setFontSizeForClass('action-font-size', 20);
-    setFontSizeForClass('guideline-font-size', 25);
+    setFontSizeForClass('nav-font', 36);
+    setFontSizeForClass('h1-font', 55);
+    setFontSizeForClass('guideline-font', 36);
+    setFontSizeForClass('choice-font', 30);
+    setFontSizeForClass('game-title-font', 21);
+    setFontSizeForClass('game-percentage', 21);
+
     setFontSizeForClass('reading-font-size', 18);
 
     // This must be called after all the element size adjustments
