@@ -118,24 +118,24 @@
 {% block main_content %}
 <form method="POST" action="{% url 'pqawV1:index' %}" id="quiz_form">
     {% csrf_token %}
-    <table width="100%">
+    <table style="width: 100%">
     <tr>
-        <td align="left" style="width: 33%;">
+        <td style="width: 33%; text-align: left;">
             &nbsp;&nbsp;&nbsp;
             <a href="javascript:{}" onclick="return startNewQuz()" class="nav-font transparent-text">
                 {% trans 'Start new quiz' %}</a>
         </td>
-        <td align="center" style="width: 34%;">
+        <td style="width: 34%; text-align: center;">
             <img src="{% static 'pqawV1/SimpleRed.png' %}" alt="Logo" height="73"/>
         </td>
-        <td align="right" style="width: 33%;">
+        <td style="width: 33%; text-align: right;">
             <a href="{% url 'pqawV1:about' %}" class="nav-font transparent-text">
                 {% trans 'About' %}</a>
             &nbsp;&nbsp;&nbsp;
         </td>
     </tr>
     </table>
-    <div class="h1-font" align="center">{% trans 'YOUR NEXT GAME TO PLAY' %}</div>
+    <div style="text-align: center;"><h1 class="h1-font">{% trans 'YOUR NEXT GAME TO PLAY' %}</h1></div>
     <br/>
     <input type="hidden" name="sel_action"/>
     <input type="hidden" name="sel_param0"/>
@@ -144,7 +144,7 @@
     <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
     <input type="hidden" name="scroll_pos" value="{{ scroll_pos }}"/>
 
-    <div id="cur_question" align="center">
+    <div id="cur_question" style="text-align: center;">
         {% if question %}
             <div class="guideline-font">{{ question.message }}</div>
             <br/>
@@ -161,7 +161,7 @@
         {% endif %}
     </div>
     <br/>
-    <div id="top_targets" align="center">
+    <div id="top_targets" style="text-align: center;">
         <div class="guideline-font">{% trans 'Most probably you want:' %}</div>
         <br/>
         <ul class="ul-tiles">
@@ -169,15 +169,15 @@
             <li class="li-tile">
                 <div style="height: 100%; display: flex; flex-flow: column;">
                     <div style="flex: 0 1 auto;">
-                    <table width="100%">
+                    <table style="width: 100%;">
                         <tr>
-                            <td align="left">
+                            <td style="text-align: left;">
                                 &nbsp;&nbsp;
                                 <a href="javascript:{}" class="game-title-font"
                                    onclick="return recordTarget({{ target.perm_id }}, &quot;{{ target.link }}&quot;)"
                                     title="{{ target.description }}">{{ target.title }}</a>
                             </td>
-                            <td align="right" class="game-percentage">
+                            <td style="text-align: right;" class="game-percentage">
                                 {# Must be a formatted string #}
                                 {{ target.probability }}%
                                 &nbsp;
@@ -186,7 +186,7 @@
                     </table>
                     </div>
                     <div class="screenshot-container">
-                        <img class="game-screenshot" src="{{ target.thumbnail_url }}"/>
+                        <img class="game-screenshot" src="{{ target.thumbnail_url }}" alt="{{ target.description }}"/>
                     </div>
                     <div style="flex: 0 1 auto;">
                         <br/>
@@ -202,9 +202,9 @@
     </div>
     {% if is_teacher %}
         <br/>
-        <div id="teacher_actions" align="center">
-            <input type="text" name="teaching_target_filter" class="action-font-size" />
-            <input type="submit" class="action-font-size" value="{% trans 'Filter targets' %}" />
+        <div id="teacher_actions" style="text-align: center; background-color: #660000;">
+            <input type="text" name="teaching_target_filter" class="reading-font" />
+            <input type="submit" class="reading-font" value="{% trans 'Filter targets' %}" />
         </div>
     {% endif %}
 </form>

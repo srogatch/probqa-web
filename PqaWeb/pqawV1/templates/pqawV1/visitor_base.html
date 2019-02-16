@@ -1,6 +1,6 @@
 {% load i18n static staticfiles %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -13,9 +13,10 @@
     gtag('config', 'UA-133713748-1');
 </script>
 
-<meta charset="UTF-8">
-<meta name="description" content="An interactive recommendation engine to find the next game to play. Get a game recommendation without knowing the keywords or having a clear idea of what you are looking for, by answering the questions which this program asks.">
-<meta name="keywords" content="game recommendation,recommended game,gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game">
+<meta charset="UTF-8"/>
+<meta name="description" content="An interactive recommendation engine to find the next game to play. Get a game recommendation without knowing the keywords or having a clear idea of what you are looking for, by answering the questions which this program asks."/>
+<meta name="keywords" content="game recommendation,recommended game,gaming,recommendation,interactive,engine,top games,best games,ProbQA,rating,find game,suggest game,select game"/>
+<meta name="author" content="Serge Rogatch"/>
 <link rel="shortcut icon" type="image/png" href="{% static 'pqawV1/favicon.ico' %}"/>
 <style>
 body {
@@ -61,6 +62,9 @@ body {
     font-family: 'SairaExtraCondensed-Thin';
     font-size: 55px;
     line-height: 55px;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
 }
 .guideline-font {
     font-family: 'SairaExtraCondensed-Thin';
@@ -133,13 +137,13 @@ body {
 </script>
     {% block main_content %}{% endblock main_content %}
     <br/>
-    <div class="reading-font" align="center">
+    <div class="reading-font" style="text-align: center;">
         {% trans 'If you want to ' %}
         <a href="https://www.surveymonkey.com/r/SMJ2ZRZ" class="reading-link">
             {% trans 'add a game or give feedback' %}</a>
         {% trans ', please, take that survey.' %}
     </div>
-    <div class="reading-font" align="center">
+    <div class="reading-font" style="text-align: center;">
         {% trans 'Powered by' %}
         <a href="https://github.com/srogatch/ProbQA" class="reading-link">
             {% trans 'Probabilistic Question Asking system' %}</a>
