@@ -10,6 +10,7 @@ urlpatterns = [
     re_path(r'^BingSiteAuth\.xml$', views.bing_site_verification),
     re_path(r'^yandex_c54f5245983f4a2a\.html$', views.yandex_site_verification),
     re_path(r'^robots\.txt$', views.robots_txt),
+    re_path(r'^sitemap\.xml$', views.sitemap_xml),
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
 ]

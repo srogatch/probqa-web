@@ -1,6 +1,10 @@
+import os
+
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
+
 from .pivot import pivot_instance
 from .quiz_page import QuizPage
 
@@ -46,3 +50,10 @@ def yandex_site_verification(request: HttpRequest):
 
 def robots_txt(request: HttpRequest):
     return HttpResponse('User-agent: *\nDisallow:\n', content_type='text/plain')
+
+
+def sitemap_xml(request: HttpRequest):
+    file_path = os.path.join(settings.STATIC_ROOT, 'pqawV1/sitemap.xml')
+    with open(file_path, 'r') as file:
+        content = file.read()
+    return HttpResponse(content, content_type='text/xml')

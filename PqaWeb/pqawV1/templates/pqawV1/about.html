@@ -22,7 +22,9 @@
 {% block main_content %}
 <div align="center">
     <img src="{% static 'pqawV1/SimpleRed.png' %}" alt="Logo" height="73"/>
-    <div class="reading-large-font" id="aboutTextDiv" align="left" style="padding: 10px;">
+    <h1 class="h1-font">{% trans 'ABOUT THE INTERACTIVE RECOMMENDATION ENGINE FOR GAMES' %}</h1>
+    <br/><br/>
+    <div class="reading-large-font" id="aboutTextDiv" style="padding: 10px; text-align: left;">
         This website helps you to select the next game to play. It uses an interactive recommendation engine,
         called ProbQA. In each step the engine lists the top recommendations for you given your answers to previous
         questions. The more questions you answer, the better should be the recommendations. However, if you want to
