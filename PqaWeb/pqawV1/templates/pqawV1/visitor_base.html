@@ -97,7 +97,7 @@ body {
 
 {# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
 <div id='dpi_detector' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
-<script type='text/javascript'>
+<script>
     var devicePixelRatio = window.devicePixelRatio || 1;
     dpi_x = document.getElementById('dpi_detector').offsetWidth * devicePixelRatio;
     dpi_y = document.getElementById('dpi_detector').offsetHeight * devicePixelRatio;
@@ -127,7 +127,7 @@ body {
 
 <div class="body1" id="divBody1">
 <div class="body2" id="divBody2">
-<script type='text/javascript'>
+<script>
     if(isIE || isEdge) {
         var element = document.getElementById("divBody1");
         element.classList.remove("body1");
@@ -151,7 +151,7 @@ body {
     <br/>
 </div>
 </div>
-<script type='text/javascript'>
+<script>
     setFontSizeForClass('nav-font', 36);
     setFontSizeForClass('h1-font', 55);
     setFontSizeForClass('guideline-font', 36);

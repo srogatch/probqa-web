@@ -82,7 +82,7 @@
     padding-bottom: 20px;
 }
 </style>
-<script type="text/javascript">
+<script>
     function submitMaintainingScrollPos() {
         document.getElementsByName('scroll_pos')[0].value = String(window.pageYOffset);
         document.getElementById('quiz_form').submit();
@@ -208,7 +208,7 @@
         </div>
     {% endif %}
 </form>
-<script type='text/javascript'>
+<script>
     var elms = document.getElementsByClassName("game-screenshot");
     for(var i=0; i<elms.length; i++) {
       elms[i].width=String(Math.min(Math.round(640 * dpi_x / 96), document.documentElement.clientWidth));
