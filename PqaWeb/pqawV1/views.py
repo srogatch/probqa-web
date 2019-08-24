@@ -52,6 +52,8 @@ def robots_txt(request: HttpRequest):
     return HttpResponse('User-agent: *\nDisallow:\n', content_type='text/plain')
 
 
+# https://www.sitemaps.org/faq.html#faq_sitemap_location
+# https://www.sitemaps.org/protocol.html
 def sitemap_xml(request: HttpRequest):
     file_path = os.path.join(settings.STATIC_ROOT, 'pqawV1/sitemap.xml')
     with open(file_path, 'r') as file:
