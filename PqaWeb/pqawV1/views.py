@@ -59,3 +59,7 @@ def sitemap_xml(request: HttpRequest):
     with open(file_path, 'r') as file:
         content = file.read()
     return HttpResponse(content, content_type='text/xml')
+
+
+def ads_txt(request: HttpRequest):
+    return HttpResponse('google.com, pub-8880263229660439, DIRECT, f08c47fec0942fa0', content_type='text/plain')
