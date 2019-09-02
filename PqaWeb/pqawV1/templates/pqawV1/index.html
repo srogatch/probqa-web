@@ -137,14 +137,6 @@
     </tr>
     </table>
     <div style="text-align: center;"><h1 class="h1-font">{% trans 'YOUR NEXT GAME TO PLAY' %}</h1></div>
-    <br/>
-    <input type="hidden" name="sel_action"/>
-    <input type="hidden" name="sel_param0"/>
-    {# For several quizzes open in several tabs #}
-    <input type="hidden" name="cur_quiz_id" value="{{ cur_quiz_id }}"/>
-    <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
-    <input type="hidden" name="scroll_pos" value="{{ scroll_pos }}"/>
-
     <div id="in_article_ad" style="text-align: center;">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <ins class="adsbygoogle"
@@ -157,6 +149,14 @@
              (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
     </div>
+    <br/>
+    <input type="hidden" name="sel_action"/>
+    <input type="hidden" name="sel_param0"/>
+    {# For several quizzes open in several tabs #}
+    <input type="hidden" name="cur_quiz_id" value="{{ cur_quiz_id }}"/>
+    <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
+    <input type="hidden" name="scroll_pos" value="{{ scroll_pos }}"/>
+
     <div id="cur_question" style="text-align: center;">
         {% if question %}
             <div class="guideline-font">{{ question.message }}</div>
@@ -206,7 +206,7 @@
                         <ins class="adsbygoogle"
                              style="display:block"
                              data-ad-format="fluid"
-                             data-ad-layout-key="-ef+6k-30-ac+ty"
+                             data-ad-layout-key="-ed+5p-2-bb+pw"
                              data-ad-client="ca-pub-8880263229660439"
                              data-ad-slot="6206213915"></ins>
                         <script>
