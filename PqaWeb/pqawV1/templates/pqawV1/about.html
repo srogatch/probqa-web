@@ -17,6 +17,15 @@
     color: red;
     -webkit-text-fill-color: red;
 }
+.inline-link {
+    color: #660000;
+    -webkit-text-fill-color: #660000;
+    text-decoration: none;
+}
+.inline-link:hover {
+    color: red;
+    -webkit-text-fill-color: red;
+}
 </style>
 {% endblock head_content %}
 
@@ -29,7 +38,13 @@
         This website helps you to select the next video game to play. It uses an interactive recommendation engine,
         called ProbQA (Probabilistic Question Asking system). In each step the engine lists the top recommendations for
         you given your answers to previous questions. The more questions you answer, the better should be the
-        recommendations. However, if you want to try something different, click "Start new quiz" on the main page.
+        recommendations. However, if you want to try a different set of answers to the questions, click
+        <a class="inline-link" href="{% url 'pqawV1:index' %}">"Start new quiz" on the main page</a>. To pick a game for
+        you the system takes into account both your
+        individual preferences, as well as the top video games which the other users like the most. So you can look here
+        for the best games tailored to your implicit gamer profile. This approach should be superior to just the simple
+        suggestion of a similar game because you can figure out something novel that you will like nevertheless you have
+        never played anything similar earlier.
         <br/>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <ins class="adsbygoogle"
