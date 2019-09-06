@@ -3,7 +3,7 @@
 
 {% block head_content %}
 <link rel="canonical" href="http://probqa.com/about/"/>
-<title>{% trans 'About ProbQA video game recommendation engine' %}</title>
+<title>{% trans 'About ProbQA video game recommendation engine | The Best Games' %}</title>
 <style>
 .go-home-font {
     font-family: 'SairaExtraCondensed-Regular';
@@ -35,16 +35,15 @@
     <h1 class="h1-font">{% trans 'ABOUT THE INTERACTIVE RECOMMENDATION ENGINE FOR GAMES' %}</h1>
     <br/><br/>
     <div class="reading-large-font" id="aboutTextDiv" style="padding: 10px; text-align: left;">
-        This website helps you to select the next video game to play. It uses an interactive recommendation engine,
+        This website helps you to select the best next video game to play. It uses an interactive recommendation engine,
         called ProbQA (Probabilistic Question Asking system). In each step the engine lists the top recommendations for
         you given your answers to previous questions. The more questions you answer, the better should be the
         recommendations. However, if you want to try a different set of answers to the questions, click
-        <a class="inline-link" href="{% url 'pqawV1:index' %}">"Start new quiz" on the main page</a>. To pick a game for
-        you the system takes into account both your
-        individual preferences, as well as the top video games which the other users like the most. So you can look here
-        for the best games tailored to your implicit gamer profile. This approach should be superior to just the simple
-        suggestion of a similar game because you can figure out something novel that you will like nevertheless you have
-        never played anything similar earlier.
+        <a class="inline-link" href="{% url 'pqawV1:index' %}">"Start new quiz" on the main page</a>. To pick the best
+        games for you the system takes into account both your individual preferences, as well as the top video games
+        which the other users like the most. So you can look here for the best games tailored to your implicit gamer
+        profile. This approach should be superior to just the simple suggestion of a similar game because you can figure
+        out something novel that you will like nevertheless you have never played anything similar earlier.
         <br/>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <ins class="adsbygoogle"
