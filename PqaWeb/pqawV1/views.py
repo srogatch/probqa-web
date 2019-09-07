@@ -55,9 +55,24 @@ def robots_txt(request: HttpRequest):
 # https://www.sitemaps.org/faq.html#faq_sitemap_location
 # https://www.sitemaps.org/protocol.html
 def sitemap_xml(request: HttpRequest):
-    file_path = os.path.join(settings.STATIC_ROOT, 'pqawV1/sitemap.xml')
-    with open(file_path, 'r') as file:
-        content = file.read()
+    # file_path = os.path.join(settings.STATIC_ROOT, 'pqawV1/sitemap.xml')
+    # with open(file_path, 'r') as file:
+    #     content = file.read()
+    content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>http://""" + request.get_host() + """/</loc>
+        <lastmod>2019-09-07</lastmod>
+        <changefreq>always</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>http://""" + request.get_host() + """/about/</loc>
+        <lastmod>2019-09-07</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>0.2</priority>
+    </url>
+</urlset>"""
     return HttpResponse(content, content_type='text/xml')
 
 

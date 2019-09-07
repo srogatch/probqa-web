@@ -29,7 +29,7 @@ SECRET_KEY = Path(os.path.join(BASE_DIR, '../../secret/django_key.txt')).read_te
 DEBUG = not IS_PRODUCTION
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.100.103', '86.57.175.52', '82.209.232.105', 'probqa.com',
-                 'www.probqa.com']
+                 'www.probqa.com', 'best-games.info', 'www.best-games.info']
 
 
 # Application definition
