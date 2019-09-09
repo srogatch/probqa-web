@@ -12,6 +12,7 @@ urlpatterns = [
     re_path(r'^robots\.txt$', views.robots_txt),
     re_path(r'^sitemap\.xml$', views.sitemap_xml),
     re_path(r'^ads\.txt$', views.ads_txt),
+    re_path(r'^pinterest\-4cc33\.html$', views.pinterest),
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
 ]
