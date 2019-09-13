@@ -88,17 +88,6 @@
         document.getElementsByName('scroll_pos')[0].value = String(window.pageYOffset);
         document.getElementById('quiz_form').submit();
     }
-    function startNewQuz() {
-        document.getElementsByName('sel_action')[0].value = 'StartNewQuiz';
-        submitMaintainingScrollPos();
-        return false;
-    }
-    function recordAnswer(optionPos) {
-        document.getElementsByName('sel_action')[0].value = 'RecordAnswer';
-        document.getElementsByName('sel_param0')[0].value = String(optionPos);
-        submitMaintainingScrollPos();
-        return false;
-    }
     function recordTarget(targetId, openUrl) {
         document.getElementsByName('sel_action')[0].value = 'RecordTarget';
         document.getElementsByName('sel_param0')[0].value = String(targetId);
@@ -117,14 +106,13 @@
 {% endblock head_content %}
 
 {% block main_content %}
-<form method="POST" action="{% url 'pqawV1:index' %}" id="quiz_form">
+<form method="POST" action="{% url 'pqawV1:index' %}?{{ request.GET.urlencode }}" id="quiz_form">
     {% csrf_token %}
     <table style="width: 100%">
     <tr>
         <td style="width: 33%; text-align: left;">
             &nbsp;&nbsp;&nbsp;
-            <a href="javascript:{}" onclick="return startNewQuz()" class="nav-font transparent-text">
-                {% trans 'Start new quiz' %}</a>
+            <a href="{% url 'pqawV1:index' %}" class="nav-font transparent-text">{% trans 'Start new quiz' %}</a>
         </td>
         <td style="width: 34%; text-align: center;">
             <img src="{% static 'pqawV1/SimpleRed.png' %}" alt="Logo" height="73"/>
@@ -152,9 +140,6 @@
     <br/>
     <input type="hidden" name="sel_action"/>
     <input type="hidden" name="sel_param0"/>
-    {# For several quizzes open in several tabs #}
-    <input type="hidden" name="cur_quiz_id" value="{{ cur_quiz_id }}"/>
-    <input type="hidden" name="cur_question_id" value="{{ cur_question_id }}"/>
     <input type="hidden" name="scroll_pos" value="{{ scroll_pos }}"/>
 
     <div id="cur_question" style="text-align: center;">
@@ -164,8 +149,9 @@
             {% for answer in answers %}
                 <span class="choice-font" style="white-space: nowrap;">
                 &nbsp;
-                    <a href="javascript:{}" onclick="return recordAnswer({{ answer.option_pos }})"
-                        class="choice-link">&bull;{{ answer.message }}</a>
+                    <a href="{% url 'pqawV1:index' %}?{{ answer.query }}" class="choice-link">
+                        &bull;{{ answer.db_ans.message }}
+                    </a>
                 &nbsp;
                 </span>
             {% endfor %}

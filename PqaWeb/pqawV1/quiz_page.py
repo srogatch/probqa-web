@@ -6,18 +6,9 @@ from django.shortcuts import get_object_or_404
 
 from ProbQAInterop.ProbQA import PqaEngine, INVALID_PQA_ID, AnsweredQuestion, PqaException
 from .models import Question, QuizChoice, Target
-from .utils import silent_int
+from .utils import silent_int, format_probability
 from .quiz_registry import QuizRegistry
-
-
-class TargetView:
-    def __init__(self, link: str, title: str, perm_id: int, probability: str, description: str, thumbnail_url: str):
-        self.link = link
-        self.title = title
-        self.perm_id = perm_id
-        self.probability = probability
-        self.description = description  # Currently shown as a tooltip
-        self.thumbnail_url = thumbnail_url
+from .target_view import TargetView
 
 
 class QuizPage:
@@ -38,15 +29,6 @@ class QuizPage:
         i_perm_question = self.engine.question_perm_from_comp([i_comp_question])[0]
         self.quiz = self.quiz_reg.add_active_quiz(quiz_perm_id, i_perm_question)
         self.fill_context()
-
-    def format_probability(self, prob: float) -> str:
-        perc = prob * 100
-        if round(perc, 1) >= 100:
-            return '100'
-        elif round(perc, 2) >= 10:
-            return '{0:.1f}'.format(perc)
-        else:
-            return '{0:.2f}'.format(perc)
 
     def fill_context(self):
         assert self.quiz_comp_id is not None
@@ -85,7 +67,7 @@ class QuizPage:
                 TargetView(dbt.link,
                            dbt.title,
                            dbt.pqa_id,
-                           self.format_probability(permid2prob[dbt.pqa_id]),
+                           format_probability(permid2prob[dbt.pqa_id]),
                            dbt.description,
                            dbt.thumbnail.url)
                 for dbt in db_targets]
@@ -98,7 +80,7 @@ class QuizPage:
                 TargetView(dbt_refs[target_perm_id].link,
                            dbt_refs[target_perm_id].title,
                            target_perm_id,
-                           self.format_probability(rated_target.prob),
+                           format_probability(rated_target.prob),
                            dbt_refs[target_perm_id].description,
                            dbt_refs[target_perm_id].thumbnail.url)
                 for target_perm_id, rated_target in zip(i_perm_targets, top_targets)]

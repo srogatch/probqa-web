@@ -77,6 +77,15 @@ class QuizTarget(models.Model):
     last_choice_id = models.BigIntegerField()
 
 
+class UserTraining(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    user_ip = models.CharField(max_length=255, null=True, blank=True)
+    username = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+    target_pqa_id = models.BigIntegerField()
+    query_url = models.TextField(max_length=16777211)  # A little less than 2**24
+
+
 class KnowledgeBase(models.Model):
     id = models.BigAutoField(primary_key=True)
     path = models.CharField(max_length=255)
