@@ -98,6 +98,18 @@ body {
     font-family: 'SairaExtraCondensed-Regular';
     font-size: 30px;
 }
+.go-home-font {
+    font-family: 'SairaExtraCondensed-Regular';
+    font-size: 36px;
+    line-height: 36px;
+    color: #660000;
+    -webkit-text-fill-color: #660000;
+    text-decoration: none;
+}
+.go-home-font:hover {
+    color: red;
+    -webkit-text-fill-color: red;
+}
 </style>
 {% block head_content %}{% endblock head_content %}
 
@@ -182,7 +194,7 @@ body {
     setFontSizeForClass('game-percentage', 21);
     setFontSizeForClass('reading-font', 25);
     setFontSizeForClass('reading-large-font', 30, false);
-
+    setFontSizeForClass('go-home-font', 36);
 
     // This must be called after all the element size adjustments
     var scrollPosElms = document.getElementsByName('scroll_pos');

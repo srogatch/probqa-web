@@ -5,18 +5,6 @@
 <link rel="canonical" href="http://{{ request.get_host }}/about/"/>
 <title>{% trans 'About ProbQA video game recommendation engine | The Best Games' %}</title>
 <style>
-.go-home-font {
-    font-family: 'SairaExtraCondensed-Regular';
-    font-size: 36px;
-    line-height: 36px;
-    color: #660000;
-    -webkit-text-fill-color: #660000;
-    text-decoration: none;
-}
-.go-home-font:hover {
-    color: red;
-    -webkit-text-fill-color: red;
-}
 .inline-link {
     color: #660000;
     -webkit-text-fill-color: #660000;
@@ -90,6 +78,5 @@
 <br/>
 <script>
     document.getElementById("aboutTextDiv").style.maxWidth = String(800 * dpi_x / 96) + "px";
-    setFontSizeForClass('go-home-font', 36);
 </script>
 {% endblock %}

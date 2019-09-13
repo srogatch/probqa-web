@@ -232,7 +232,11 @@
             <input type="submit" class="reading-font" value="{% trans 'Filter targets' %}" />
         </div>
     {% endif %}
-
+    <div align="center">
+        <a class="go-home-font" href="javascript:{}" onclick="window.scrollTo(0, 0); return false;">
+            {% trans 'Scroll to the top' %}
+        </a>
+    </div>
 </form>
 <script>
     var elms = document.getElementsByClassName("game-screenshot");
