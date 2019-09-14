@@ -30,7 +30,11 @@ class QuizMultiPage:
         self.is_teacher = (request.user.groups.filter(name='Teaching').count() > 0)
 
     def fill_context(self):
-        i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
+        try:
+            i_comp_next_question = self.engine.next_question(self.quiz_comp_id)
+        except:
+            print(traceback.format_exc())
+            i_comp_next_question = INVALID_PQA_ID
         if i_comp_next_question != INVALID_PQA_ID:
             i_perm_next_question = self.engine.question_perm_from_comp([i_comp_next_question])[0]
             question = get_object_or_404(Question, pqa_id=i_perm_next_question)
