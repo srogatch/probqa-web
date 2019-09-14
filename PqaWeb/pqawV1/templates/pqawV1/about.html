@@ -27,13 +27,15 @@
         called ProbQA (Probabilistic Question Asking system). In each step the engine lists the top recommendations for
         you given your answers to previous questions. The more questions you answer, the better should be the
         recommendations. However, if you want to try a different set of answers to the questions, click
-        <a class="inline-link" href="{% url 'pqawV1:index' %}">"Start new quiz" on the main page</a>. To pick the best
-        games for you the system takes into account both your individual preferences, as well as the top video games
-        which the other users like the most. So you can look here for the best games tailored to your implicit gamer
-        profile. This approach should be superior to just the simple suggestion of a similar game because you can figure
-        out something novel that you will like nevertheless you have never played anything similar earlier. So whatever
-        kind of user you are, it is easy to pick a game and with our site you will never more have doubts on what game
-        to play next.
+        <a class="inline-link" href="{% url 'pqawV1:index' %}" onclick="setScrollCookie(0); return true">
+            "Start new quiz" on the main page
+        </a>
+        . To pick the best games for you the system takes into account both your individual preferences, as well as the
+        top video games which the other users like the most. So you can look here for the best games tailored to your
+        implicit gamer profile. This approach should be superior to just the simple suggestion of a similar game because
+        you can figure out something novel that you will like nevertheless you have never played anything similar
+        earlier. So whatever kind of user you are, it is easy to pick a game and with our site you will never more have
+        doubts on what game to play next.
         <br/>
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <ins class="adsbygoogle"
@@ -73,7 +75,9 @@
     </div>
 </div>
 <div align="center">
-    <a class="go-home-font" href="{% url 'pqawV1:index' %}">{% trans 'Back to quiz' %}</a>
+    <a class="go-home-font" href="{% url 'pqawV1:index' %}" onclick="setScrollCookie(0); return true">
+        {% trans 'Back to quiz' %}
+    </a>
 </div>
 <br/>
 <script>

@@ -47,7 +47,8 @@ class QuizMultiPage:
             self.context['answers'] = avs
 
         self.context['is_teacher'] = self.is_teacher
-        self.context['scroll_pos'] = self.request.POST.get('scroll_pos', 0)
+        # At last, the server decides here the scroll position for the page on the client
+        self.context['scroll_pos'] = self.request.COOKIES.get('scrollPosition')
 
         teaching_target_filter = self.request.POST.get('teaching_target_filter')
         if self.is_teacher and teaching_target_filter:

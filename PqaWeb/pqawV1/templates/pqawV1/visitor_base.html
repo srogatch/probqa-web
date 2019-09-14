@@ -111,10 +111,20 @@ body {
     -webkit-text-fill-color: red;
 }
 </style>
+
+<script>
+    function setScrollCookie(yOffset) {
+        document.cookie = "scrollPosition=" + String(yOffset) + "; path=/";
+    }
+    function onDocScroll() {
+        setScrollCookie(window.pageYOffset)
+    }
+</script>
+
 {% block head_content %}{% endblock head_content %}
 
 </head>
-<body>
+<body onscroll="onDocScroll()">
 
 {# Taken from: https://stackoverflow.com/questions/279749/detecting-the-system-dpi-ppi-from-js-css #}
 <div id='dpi_detector' style='height: 1in; left: -100%; position: absolute; top: -100%; width: 1in;'></div>
