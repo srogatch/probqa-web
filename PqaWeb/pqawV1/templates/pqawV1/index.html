@@ -2,8 +2,8 @@
 {% load i18n static staticfiles %}
 
 {% block head_content %}
-<link rel="canonical" href="http://{{ request.get_host }}"/>
-<title>{% trans 'ProbQA video game recommendation engine | The Best Games' %}</title>
+<link rel="canonical" href="http://{{ request.get_host }}{{ request.get_full_path }}"/>
+<title>{% trans 'ProbQA video game recommendation engine | Best Games' %}</title>
 <style>
 .ul-tiles {
     font-size: 0;

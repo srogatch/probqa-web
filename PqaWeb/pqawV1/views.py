@@ -4,11 +4,14 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from django.http import Http404
 
 from .pivot import pivot_instance
 # from .quiz_page import QuizPage
 from .quiz_multi_page import QuizMultiPage
 
+host_probqa_com = 'probqa.com'
+host_best_games_info = 'best-games.info'
 
 @require_http_methods(['GET', 'POST', 'HEAD'])
 def index(request: HttpRequest):
@@ -30,6 +33,11 @@ def about(request: HttpRequest):
 
 
 def google_site_verification(request: HttpRequest):
+    # host = request.get_host()
+    # if host == host_probqa_com:
+    #     return HttpResponse('google-site-verification: google139b7e8eec9d86dd.html', content_type='text/plain')
+    # else:
+    #     raise Http404('No Google site verification for host ' + host)
     return HttpResponse('google-site-verification: google139b7e8eec9d86dd.html', content_type='text/plain')
 
 
@@ -81,7 +89,11 @@ def sitemap_xml(request: HttpRequest):
 
 
 def ads_txt(request: HttpRequest):
-    return HttpResponse('google.com, pub-8880263229660439, DIRECT, f08c47fec0942fa0', content_type='text/plain')
+    host = request.get_host()
+    if host == host_probqa_com:
+        return HttpResponse('google.com, pub-8880263229660439, DIRECT, f08c47fec0942fa0', content_type='text/plain')
+    else:
+        raise Http404('No ads.txt defined for host: ' + host)
 
 
 def pinterest(request: HttpRequest):
