@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 
-{% if request.get_host == 'probqa.com' %}
+{% if request.get_host.lower == 'probqa.com' %}
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133713748-1"></script>
@@ -15,7 +15,7 @@
     gtag('config', 'UA-133713748-1');
 </script>
 
-{% elif request.get_host == 'best-games.info' %}
+{% elif request.get_host.lower == 'best-games.info' %}
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133713748-2"></script>
