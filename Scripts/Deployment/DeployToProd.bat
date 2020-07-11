@@ -1,4 +1,4 @@
-call workon PqaWeb1
+call ..\..\..\venv\PqaWeb1\Scripts\activate.bat
 @REM TODO: build ProbQA engine and copy the Release versions of its DLLs
 python ..\..\PqaWeb\manage.py collectstatic --noinput
 @REM we clean the static directory first

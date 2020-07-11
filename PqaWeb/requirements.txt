@@ -1,5 +1,6 @@
 Django==2.1.4
 django-ipware==3.0.0
+mod-wsgi==4.7.1
 mysqlclient==2.0.1
 Pillow==7.2.0
 pytz==2020.1
