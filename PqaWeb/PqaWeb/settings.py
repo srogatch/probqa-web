@@ -39,8 +39,8 @@ EMAIL_HOST_PASSWORD = Path(os.path.join(BASE_DIR, '../../secret/email_pswd.txt')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.100.203', '86.57.175.52', 'probqa.com',
-                 'www.probqa.com', 'best-games.info', 'www.best-games.info']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '192.168.100.203', '86.57.175.52', '85.89.162.215',
+    'probqa.com', 'www.probqa.com', 'best-games.info', 'www.best-games.info']
 
 
 # Application definition
